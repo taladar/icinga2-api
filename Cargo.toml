@@ -19,13 +19,39 @@ debug = true
 [dependencies]
 
 [dependencies.thiserror]
-version = "~1.0"
-
-[dependencies.futures]
-version = "~0.3"
+version = "1.0.31"
 
 [dependencies.tracing]
-version = "~0.1"
+version = "0.1.35"
+
+[dependencies.reqwest]
+version = "0.11.11"
+features = ["blocking","json"]
+
+[dependencies.serde]
+version = "1.0.137"
+features = ["derive"]
+
+[dependencies.serde_json]
+version = "1.0.81"
+
+[dependencies.serde_path_to_error]
+version = "0.1.7"
+
+[dependencies.toml]
+version = "0.5.9"
+
+[dependencies.url]
+version = "2.2.2"
+
+[dependencies.http]
+version = "0.2.8"
 
 [dev-dependencies.pretty_assertions]
-version = "~1.0"
+version = "1.2.1"
+
+[dev-dependencies.dotenv]
+version = "0.15.0"
+
+[dev-dependencies.tracing-test]
+version = "0.2.1"
