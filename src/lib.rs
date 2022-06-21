@@ -210,9 +210,51 @@ impl Icinga2 {
             Err(crate::Error::EmptyResponseBody(status))
         } else {
             let jd = &mut serde_json::Deserializer::from_slice(&response_body);
-            let response_body: Res = serde_path_to_error::deserialize(jd)?;
-            tracing::trace!("Parsed response body:\n{:#?}", response_body);
-            Ok(response_body)
+            match serde_path_to_error::deserialize(jd) {
+                Ok(response_body) => {
+                    tracing::trace!("Parsed response body:\n{:#?}", response_body);
+                    Ok(response_body)
+                }
+                Err(e) => {
+                    let path = e.path();
+                    tracing::error!("Parsing failed at path {}: {}", path.to_string(), e.inner());
+                    if let Ok(response_body) = serde_json::from_slice(&response_body) {
+                        let mut response_body: serde_json::Value = response_body;
+                        for segment in path {
+                            match (response_body, segment) {
+                                (
+                                    serde_json::Value::Array(vs),
+                                    serde_path_to_error::Segment::Seq { index },
+                                ) => {
+                                    if let Some(v) = vs.get(*index) {
+                                        response_body = v.to_owned();
+                                    } else {
+                                        // if we can not find the element serde_path_to_error references fall back to just returning the error
+                                        return Err(e.into());
+                                    }
+                                }
+                                (
+                                    serde_json::Value::Object(m),
+                                    serde_path_to_error::Segment::Map { key },
+                                ) => {
+                                    if let Some(v) = m.get(key) {
+                                        response_body = v.to_owned();
+                                    } else {
+                                        // if we can not find the element serde_path_to_error references fall back to just returning the error
+                                        return Err(e.into());
+                                    }
+                                }
+                                _ => {
+                                    // if we can not find the element serde_path_to_error references fall back to just returning the error
+                                    return Err(e.into());
+                                }
+                            }
+                        }
+                        tracing::error!("Value in location path references is: {}", response_body);
+                    }
+                    Err(e.into())
+                }
+            }
         }
     }
 
@@ -230,6 +272,21 @@ impl Icinga2 {
             self.rest::<(), ResultsWrapper<IcingaHost>>(http::Method::GET, url, None)?;
         Ok(results)
     }
+
+    /// retrieve Icinga services
+    ///
+    /// # Errors
+    ///
+    /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    pub fn services(&self) -> Result<Vec<IcingaService>, crate::Error> {
+        let url = self
+            .url
+            .join("v1/objects/services")
+            .map_err(crate::Error::CouldNotParseUrlFragment)?;
+        let ResultsWrapper { results } =
+            self.rest::<(), ResultsWrapper<IcingaService>>(http::Method::GET, url, None)?;
+        Ok(results)
+    }
 }
 
 /// wrapper for Json results
@@ -244,8 +301,12 @@ pub struct ResultsWrapper<T> {
 pub enum IcingaObjectType {
     /// an icinga monitored host
     Host,
+    /// an icinga service
+    Service,
     /// an icinga check result
     CheckResult,
+    /// a performance data value
+    PerfdataValue,
 }
 
 /// deserializes a unix timestamp with sub second accuracy
@@ -415,6 +476,38 @@ pub struct IcingaHostCheckResultVars {
     pub state_type: IcingaStateType,
 }
 
+/// represents performance data
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum IcingaPerformanceData {
+    /// performance data in string format
+    String(String),
+    /// structured performance data value
+    PerfDataValue {
+        /// object type, should always be PerfdataValue here
+        #[serde(rename = "type")]
+        object_type: IcingaObjectType,
+        /// is this a counter
+        counter: bool,
+        /// the current value
+        value: f64,
+        /// the critical value
+        crit: Option<f64>,
+        /// the warning value
+        warn: Option<f64>,
+        /// the label for the type of values
+        #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+        label: Option<String>,
+        /// the minimum value
+        min: Option<f64>,
+        /// the maximum value
+        max: Option<f64>,
+        /// the unit for the type of values
+        #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+        unit: Option<String>,
+    },
+}
+
 /// a host check result
 #[derive(Debug, Deserialize)]
 pub struct IcingaHostCheckResult {
@@ -423,7 +516,7 @@ pub struct IcingaHostCheckResult {
     /// name of host which provided this check result
     pub check_source: String,
     /// the command called for the check
-    pub command: Vec<String>,
+    pub command: Option<IcingaCommand>,
     /// start of command execution
     #[serde(deserialize_with = "deserialize_icinga_timestamp")]
     pub execution_start: time::OffsetDateTime,
@@ -435,7 +528,7 @@ pub struct IcingaHostCheckResult {
     /// output of the check command
     pub output: String,
     /// performance data provided by the check command
-    pub performance_data: Vec<String>,
+    pub performance_data: Option<Vec<IcingaPerformanceData>>,
     /// hard state before this check
     pub previous_hard_state: IcingaHostState,
     /// scheduled check execution start time
@@ -456,9 +549,9 @@ pub struct IcingaHostCheckResult {
     #[serde(rename = "type")]
     pub object_type: IcingaObjectType,
     /// variables for internal calculations before this check
-    pub vars_before: IcingaHostCheckResultVars,
+    pub vars_before: Option<IcingaHostCheckResultVars>,
     /// variables for internal calculations after this check
-    pub vars_after: IcingaHostCheckResultVars,
+    pub vars_after: Option<IcingaHostCheckResultVars>,
 }
 
 /// an icinga source location inside the icinga config files
@@ -484,6 +577,10 @@ pub enum IcingaVariableValue {
     String(String),
     /// list of strings value
     List(Vec<String>),
+    /// key/value object
+    Object(BTreeMap<String, IcingaVariableValue>),
+    /// Boolean
+    Boolean(bool),
 }
 
 /// acknowledgement type
@@ -508,9 +605,23 @@ pub enum HAMode {
     Everywhere,
 }
 
+/// command to execute with parameters
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum IcingaCommand {
+    /// a single string for the whole command, will likely need a shell to do
+    /// word splitting
+    Shell(String),
+    /// individual command and parameters
+    Exec(Vec<String>),
+}
+
 /// attributes on an [IcingaHost]
 #[derive(Debug, Deserialize)]
 pub struct IcingaHostAttributes {
+    /// full object name
+    #[serde(rename = "__name")]
+    pub full_name: String,
     /// host name
     pub name: String,
     /// type of icinga object, should always be Host for this
@@ -576,7 +687,7 @@ pub struct IcingaHostAttributes {
     /// whether the host is flapping between states
     pub flapping: bool,
     /// current flapping value in percent
-    pub flapping_current: u8,
+    pub flapping_current: f64,
     /// a list of states that should be ignored during flapping calculations
     #[serde(default)]
     pub flapping_ignore_states: Option<Vec<IcingaHostState>>,
@@ -584,11 +695,11 @@ pub struct IcingaHostAttributes {
     #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
     pub flapping_last_change: Option<time::OffsetDateTime>,
     /// deprecated and has no effect, replaced by flapping_threshold_low and flapping_threshold_high
-    pub flapping_threshold: u8,
+    pub flapping_threshold: f64,
     /// the flapping lower bound in percent for a host to be considered flapping
-    pub flapping_threshold_low: u8,
+    pub flapping_threshold_low: f64,
     /// the flapping upper bound in percent for a host to be considered flapping
-    pub flapping_threshold_high: u8,
+    pub flapping_threshold_high: f64,
     /// force the next check (execute it now)
     pub force_next_check: bool,
     /// force next notification (send it now)
@@ -692,7 +803,281 @@ pub struct IcingaHost {
     pub attrs: IcingaHostAttributes,
     //joins:
     //meta:
-    /// host name
+    /// object name
+    pub name: String,
+    /// type of icinga object, should always be Host for this
+    #[serde(rename = "type")]
+    pub object_type: IcingaObjectType,
+}
+
+/// service state
+#[derive(Debug, Deserialize_repr)]
+#[repr(u8)]
+pub enum IcingaServiceState {
+    /// service is OK
+    Ok = 0,
+    /// service is WARNING
+    Warning = 1,
+    /// service is CRITICAL
+    Critical = 2,
+    /// service is UNKNOWN
+    Unknown = 3,
+    /// service is UNREACHABLE
+    Unreachable = 4,
+    /// service is PENDING
+    Pending = 99,
+}
+
+/// variables in check result (seem to be very static)
+#[derive(Debug, Deserialize)]
+pub struct IcingaServiceCheckResultVars {
+    /// used for internal calculations
+    pub attempt: u64,
+    /// used for internal calculations
+    pub reachable: bool,
+    /// used for internal calculations
+    pub state: IcingaServiceState,
+    /// used for internal calculations
+    pub state_type: IcingaStateType,
+}
+
+/// a service check result
+#[derive(Debug, Deserialize)]
+pub struct IcingaServiceCheckResult {
+    /// was this an active check
+    pub active: bool,
+    /// name of host which provided this check result
+    pub check_source: String,
+    /// the command called for the check
+    pub command: Option<IcingaCommand>,
+    /// start of command execution
+    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
+    pub execution_start: time::OffsetDateTime,
+    /// end of command execution
+    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
+    pub execution_end: time::OffsetDateTime,
+    /// exit status of the check command
+    pub exit_status: u64,
+    /// output of the check command
+    pub output: String,
+    /// performance data provided by the check command
+    pub performance_data: Option<Vec<IcingaPerformanceData>>,
+    /// hard state before this check
+    pub previous_hard_state: IcingaServiceState,
+    /// scheduled check execution start time
+    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
+    pub schedule_start: time::OffsetDateTime,
+    /// scheduled check execution end time
+    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
+    pub schedule_end: time::OffsetDateTime,
+    /// name of host which did the scheduling
+    pub scheduling_source: String,
+    /// state returned by this check
+    pub state: IcingaServiceState,
+    /// the TTL of this check result
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
+    pub ttl: Option<time::Duration>,
+    /// the type of icinga object
+    #[serde(rename = "type")]
+    pub object_type: IcingaObjectType,
+    /// variables for internal calculations before this check
+    pub vars_before: Option<IcingaServiceCheckResultVars>,
+    /// variables for internal calculations after this check
+    pub vars_after: Option<IcingaServiceCheckResultVars>,
+}
+
+/// attributes on an [IcingaService]
+#[derive(Debug, Deserialize)]
+pub struct IcingaServiceAttributes {
+    /// full object name
+    #[serde(rename = "__name")]
+    pub full_name: String,
+    /// service name (without host)
+    pub name: String,
+    /// type of icinga object, should always be Service for this
+    #[serde(rename = "type")]
+    pub object_type: IcingaObjectType,
+    /// the type of acknowledgement (includes None)
+    pub acknowledgement: IcingaAcknowledgementType,
+    /// when the acknowledgement expires
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub acknowledgement_expiry: Option<time::OffsetDateTime>,
+    /// when the acknowledgement last changed
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub acknowledgement_last_change: Option<time::OffsetDateTime>,
+    /// URL for actions for the host
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub action_url: Option<String>,
+    /// object is active (being checked)
+    pub active: bool,
+    /// the current check attempt number
+    pub check_attempt: u64,
+    /// the name of the check command
+    pub check_command: String,
+    /// the interval used for checks when the service is in a HARD state
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
+    pub check_interval: Option<time::Duration>,
+    /// name of a time period when this service is checked
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub check_period: Option<String>,
+    /// check timeout
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
+    pub check_timeout: Option<time::Duration>,
+    /// the endpoint the command is executed on
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub command_endpoint: Option<String>,
+    /// a short description of the host
+    pub display_name: String,
+    /// number of active downtimes on the host
+    pub downtime_depth: u64,
+    /// whether active checks are enabled
+    pub enable_active_checks: bool,
+    /// enabled event handlers for this host
+    pub enable_event_handler: bool,
+    /// whether flap detection is enabled
+    pub enable_flapping: bool,
+    /// whether notifications are enabled
+    pub enable_notifications: bool,
+    /// whether passive checks are enabled
+    pub enable_passive_checks: bool,
+    /// whether performance data processing is enabled
+    pub enable_perfdata: bool,
+    /// the name of an event command that should be executed every time the service state changes or the service is in a SOFT state
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub event_command: Option<String>,
+    /// contains the state of execute-command executions
+    pub executions: Option<()>,
+    /// whether the host is flapping between states
+    pub flapping: bool,
+    /// current flapping value in percent
+    pub flapping_current: f64,
+    /// a list of states that should be ignored during flapping calculations
+    #[serde(default)]
+    pub flapping_ignore_states: Option<Vec<IcingaHostState>>,
+    /// when the last flapping change occurred
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub flapping_last_change: Option<time::OffsetDateTime>,
+    /// deprecated and has no effect, replaced by flapping_threshold_low and flapping_threshold_high
+    pub flapping_threshold: f64,
+    /// the flapping lower bound in percent for a host to be considered flapping
+    pub flapping_threshold_low: f64,
+    /// the flapping upper bound in percent for a host to be considered flapping
+    pub flapping_threshold_high: f64,
+    /// force the next check (execute it now)
+    pub force_next_check: bool,
+    /// force next notification (send it now)
+    pub force_next_notification: bool,
+    /// a list of groups the host belongs to
+    pub groups: Vec<String>,
+    /// whether to run a check once or everywhere
+    pub ha_mode: HAMode,
+    /// whether the host problem is handled (downtime or acknowledgement)
+    pub handled: bool,
+    /// the hostname for this service
+    pub host_name: String,
+    /// icon image for the service
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub icon_image: Option<String>,
+    /// icon image alt text for the service
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub icon_image_alt: Option<String>,
+    /// when the last check occurred
+    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
+    pub last_check: time::OffsetDateTime,
+    /// the result of the last check
+    pub last_check_result: IcingaServiceCheckResult,
+    /// the previous hard state
+    pub last_hard_state: IcingaServiceState,
+    /// when the last hard state change occurred
+    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
+    pub last_hard_state_change: time::OffsetDateTime,
+    /// whether the host was reachable when the last check occurred
+    pub last_reachable: bool,
+    /// the previous state
+    pub last_state: IcingaServiceState,
+    /// when the last state change occurred
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub last_state_change: Option<time::OffsetDateTime>,
+    /// when the last CRITICAL state occurred
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub last_state_critical: Option<time::OffsetDateTime>,
+    /// when the last OK state occurred
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub last_state_ok: Option<time::OffsetDateTime>,
+    /// the previous state type (soft/hard)
+    pub last_state_type: IcingaStateType,
+    /// when the last UNKNOWN state occurred
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub last_state_unknown: Option<time::OffsetDateTime>,
+    /// when the last UNREACHABLE state occurred
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub last_state_unreachable: Option<time::OffsetDateTime>,
+    /// when the last WARNINGE state occurred
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub last_state_warning: Option<time::OffsetDateTime>,
+    /// the number of times the host is checked before changing into a new hard state
+    pub max_check_attempts: u64,
+    /// when the next check occurs
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub next_check: Option<time::OffsetDateTime>,
+    /// when the next check update is to be expected
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub next_update: Option<time::OffsetDateTime>,
+    /// notes for the service
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub notes: Option<String>,
+    /// URL for notes for the service
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub notes_url: Option<String>,
+    /// original values of object attributes modified at runtime
+    pub original_attributes: Option<()>,
+    /// configuration package name this object belongs to, _etc for local configuration
+    /// _api for runtime created objects
+    pub package: String,
+    /// object has been paused at runtime
+    pub paused: bool,
+    /// when the previous state change occurred
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub previous_state_change: Option<time::OffsetDateTime>,
+    /// whether the service is considered to be in a problem state type (not OK)
+    pub problem: bool,
+    /// the interval used for checks when the service is in a SOFT state
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
+    pub retry_interval: Option<time::Duration>,
+    /// pre-calculated value, higher means more severe
+    pub severity: u64,
+    /// location information whether the configuration files are stored
+    pub source_location: IcingaSourceLocation,
+    /// the current state
+    pub state: IcingaServiceState,
+    /// the current state type (soft/hard)
+    pub state_type: IcingaStateType,
+    /// templates imported on object compilation
+    pub templates: Vec<String>,
+    /// custom variables specific to this host
+    pub vars: BTreeMap<String, IcingaVariableValue>,
+    /// timestamp when the object was created or modified. syncred throughout cluster nodes
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub version: Option<time::OffsetDateTime>,
+    /// treat all state changes as HARD changes
+    pub volatile: bool,
+    /// the zone this object is a member of
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub zone: Option<String>,
+}
+
+/// the result of an icinga services query
+#[derive(Debug, Deserialize)]
+pub struct IcingaService {
+    /// service attributes
+    pub attrs: IcingaServiceAttributes,
+    //joins:
+    //meta:
+    /// object name
     pub name: String,
     /// type of icinga object, should always be Host for this
     #[serde(rename = "type")]
@@ -713,6 +1098,17 @@ mod test {
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
         icinga2.hosts()?;
+        Ok(())
+    }
+
+    #[traced_test]
+    #[test]
+    fn test_services() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv()?;
+        let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
+            "ICINGA_TEST_INSTANCE_CONFIG",
+        )?))?;
+        icinga2.services()?;
         Ok(())
     }
 }
