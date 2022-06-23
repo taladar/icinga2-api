@@ -353,6 +353,26 @@ impl Icinga2 {
             self.rest::<(), ResultsWrapper<IcingaCheckCommand>>(http::Method::GET, url, None)?;
         Ok(results)
     }
+
+    /// retrieve Icinga dependencies
+    ///
+    /// # Errors
+    ///
+    /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    pub fn dependencies(
+        &self,
+        joins: IcingaJoins<IcingaDependencyJoinTypes>,
+        meta: &[IcingaMetadataType],
+    ) -> Result<Vec<IcingaDependency>, crate::Error> {
+        let mut url = self
+            .url
+            .join("v1/objects/dependencies")
+            .map_err(crate::Error::CouldNotParseUrlFragment)?;
+        self.handle_joins_and_meta(&mut url, &joins, meta)?;
+        let ResultsWrapper { results } =
+            self.rest::<(), ResultsWrapper<IcingaDependency>>(http::Method::GET, url, None)?;
+        Ok(results)
+    }
 }
 
 /// wrapper for Json results
@@ -539,15 +559,28 @@ pub enum IcingaHostState {
     Unreachable = 2,
 }
 
+/// host state deserialization helper by name
+#[derive(Debug, Deserialize)]
+#[repr(u8)]
+#[serde(remote = "IcingaHostState")]
+pub enum IcingaHostStateByName {
+    /// host is up
+    Up = 0,
+    /// host is down
+    Down = 1,
+    /// host is unreachable
+    Unreachable = 2,
+}
+
 /// variables in check result (seem to be very static)
 #[derive(Debug, Deserialize)]
-pub struct IcingaHostCheckResultVars {
+pub struct IcingaCheckResultVars {
     /// used for internal calculations
     pub attempt: u64,
     /// used for internal calculations
     pub reachable: bool,
     /// used for internal calculations
-    pub state: IcingaHostState,
+    pub state: IcingaServiceState,
     /// used for internal calculations
     pub state_type: IcingaStateType,
 }
@@ -584,9 +617,9 @@ pub enum IcingaPerformanceData {
     },
 }
 
-/// a host check result
+/// a check result
 #[derive(Debug, Deserialize)]
-pub struct IcingaHostCheckResult {
+pub struct IcingaCheckResult {
     /// was this an active check
     pub active: bool,
     /// name of host which provided this check result
@@ -606,7 +639,7 @@ pub struct IcingaHostCheckResult {
     /// performance data provided by the check command
     pub performance_data: Option<Vec<IcingaPerformanceData>>,
     /// hard state before this check
-    pub previous_hard_state: IcingaHostState,
+    pub previous_hard_state: IcingaServiceState,
     /// scheduled check execution start time
     #[serde(deserialize_with = "deserialize_icinga_timestamp")]
     pub schedule_start: time::OffsetDateTime,
@@ -616,7 +649,7 @@ pub struct IcingaHostCheckResult {
     /// name of host which did the scheduling
     pub scheduling_source: String,
     /// state returned by this check
-    pub state: IcingaHostState,
+    pub state: IcingaServiceState,
     /// the TTL of this check result
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
@@ -625,9 +658,9 @@ pub struct IcingaHostCheckResult {
     #[serde(rename = "type")]
     pub object_type: IcingaObjectType,
     /// variables for internal calculations before this check
-    pub vars_before: Option<IcingaHostCheckResultVars>,
+    pub vars_before: Option<IcingaCheckResultVars>,
     /// variables for internal calculations after this check
-    pub vars_after: Option<IcingaHostCheckResultVars>,
+    pub vars_after: Option<IcingaCheckResultVars>,
 }
 
 /// an icinga source location inside the icinga config files
@@ -810,7 +843,7 @@ pub struct IcingaHostAttributes {
     #[serde(deserialize_with = "deserialize_icinga_timestamp")]
     pub last_check: time::OffsetDateTime,
     /// the result of the last check
-    pub last_check_result: IcingaHostCheckResult,
+    pub last_check_result: IcingaCheckResult,
     /// the previous hard state
     pub last_hard_state: IcingaHostState,
     /// when the last hard state change occurred
@@ -920,63 +953,23 @@ pub enum IcingaServiceState {
     Pending = 99,
 }
 
-/// variables in check result (seem to be very static)
+/// service state helper to deserialize by name
 #[derive(Debug, Deserialize)]
-pub struct IcingaServiceCheckResultVars {
-    /// used for internal calculations
-    pub attempt: u64,
-    /// used for internal calculations
-    pub reachable: bool,
-    /// used for internal calculations
-    pub state: IcingaServiceState,
-    /// used for internal calculations
-    pub state_type: IcingaStateType,
-}
-
-/// a service check result
-#[derive(Debug, Deserialize)]
-pub struct IcingaServiceCheckResult {
-    /// was this an active check
-    pub active: bool,
-    /// name of host which provided this check result
-    pub check_source: String,
-    /// the command called for the check
-    pub command: Option<IcingaCommand>,
-    /// start of command execution
-    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
-    pub execution_start: time::OffsetDateTime,
-    /// end of command execution
-    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
-    pub execution_end: time::OffsetDateTime,
-    /// exit status of the check command
-    pub exit_status: u64,
-    /// output of the check command
-    pub output: String,
-    /// performance data provided by the check command
-    pub performance_data: Option<Vec<IcingaPerformanceData>>,
-    /// hard state before this check
-    pub previous_hard_state: IcingaServiceState,
-    /// scheduled check execution start time
-    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
-    pub schedule_start: time::OffsetDateTime,
-    /// scheduled check execution end time
-    #[serde(deserialize_with = "deserialize_icinga_timestamp")]
-    pub schedule_end: time::OffsetDateTime,
-    /// name of host which did the scheduling
-    pub scheduling_source: String,
-    /// state returned by this check
-    pub state: IcingaServiceState,
-    /// the TTL of this check result
-    #[serde(default)]
-    #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
-    pub ttl: Option<time::Duration>,
-    /// the type of icinga object
-    #[serde(rename = "type")]
-    pub object_type: IcingaObjectType,
-    /// variables for internal calculations before this check
-    pub vars_before: Option<IcingaServiceCheckResultVars>,
-    /// variables for internal calculations after this check
-    pub vars_after: Option<IcingaServiceCheckResultVars>,
+#[repr(u8)]
+#[serde(remote = "IcingaServiceState")]
+pub enum IcingaServiceStateByName {
+    /// service is OK
+    Ok = 0,
+    /// service is WARNING
+    Warning = 1,
+    /// service is CRITICAL
+    Critical = 2,
+    /// service is UNKNOWN
+    Unknown = 3,
+    /// service is UNREACHABLE
+    Unreachable = 4,
+    /// service is PENDING
+    Pending = 99,
 }
 
 /// attributes on an [IcingaService]
@@ -1080,7 +1073,7 @@ pub struct IcingaServiceAttributes {
     #[serde(deserialize_with = "deserialize_icinga_timestamp")]
     pub last_check: time::OffsetDateTime,
     /// the result of the last check
-    pub last_check_result: IcingaServiceCheckResult,
+    pub last_check_result: IcingaCheckResult,
     /// the previous hard state
     pub last_hard_state: IcingaServiceState,
     /// when the last hard state change occurred
@@ -1178,6 +1171,86 @@ pub struct IcingaService {
     pub object_type: IcingaObjectType,
 }
 
+/// HostState and ServiceState
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum IcingaHostOrServiceState {
+    /// a host state
+    Host(#[serde(with = "IcingaHostStateByName")] IcingaHostState),
+    /// a service state
+    Service(#[serde(with = "IcingaServiceStateByName")] IcingaServiceState),
+}
+
+/// attributes on an [IcingaDependency]
+#[derive(Debug, Deserialize)]
+pub struct IcingaDependencyAttributes {
+    /// full object name
+    #[serde(rename = "__name")]
+    pub full_name: String,
+    /// service name (without host)
+    pub name: String,
+    /// type of icinga object, should always be Service for this
+    #[serde(rename = "type")]
+    pub object_type: IcingaObjectType,
+    /// whether this dependency is active
+    pub active: bool,
+    /// the child host name
+    pub child_host_name: String,
+    /// the child service name
+    pub child_service_name: String,
+    /// the parent host name
+    pub parent_host_name: String,
+    /// the parent service name
+    pub parent_service_name: String,
+    /// whether checks are disabled by this dependency
+    pub disable_checks: bool,
+    /// whether notifications are disabled by this dependency
+    pub disable_notifications: bool,
+    /// whether to run a check once or everywhere
+    pub ha_mode: HAMode,
+    /// whether this dependency ignores soft states
+    pub ignore_soft_states: bool,
+    /// original values of object attributes modified at runtime
+    pub original_attributes: Option<()>,
+    /// configuration package name this object belongs to, _etc for local configuration
+    /// _api for runtime created objects
+    pub package: String,
+    /// object has been paused at runtime
+    pub paused: bool,
+    /// the name of the period when this dependency is active
+    pub period: String,
+    /// states when this dependency is enabled
+    pub states: Vec<IcingaHostOrServiceState>,
+    /// location information whether the configuration files are stored
+    pub source_location: IcingaSourceLocation,
+    /// templates imported on object compilation
+    pub templates: Vec<String>,
+    /// custom variables specific to this host
+    pub vars: Option<BTreeMap<String, IcingaVariableValue>>,
+    /// timestamp when the object was created or modified. syncred throughout cluster nodes
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub version: Option<time::OffsetDateTime>,
+    /// the zone this object is a member of
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub zone: Option<String>,
+}
+
+/// the result of an icinga dependencies query
+#[derive(Debug, Deserialize)]
+pub struct IcingaDependency {
+    /// dependency attributes
+    pub attrs: IcingaDependencyAttributes,
+    /// joins
+    pub joins: IcingaDependencyJoins,
+    /// metadata, only contains data if the parameter meta contains one or more values
+    pub meta: IcingaMetadata,
+    /// object name
+    pub name: String,
+    /// type of icinga object, should always be Dependency for this
+    #[serde(rename = "type")]
+    pub object_type: IcingaObjectType,
+}
+
 /// the most minimal description of an icinga object
 #[derive(Debug, Deserialize)]
 pub struct IcingaObject {
@@ -1237,7 +1310,7 @@ pub struct IcingaServiceJoins {
     pub host: Option<IcingaJoinResult<IcingaHostAttributes>>,
     /// the check command object for the service
     pub check_command: Option<IcingaJoinResult<IcingaCheckCommandAttributes>>,
-    //pub check_period: Option<IcingaJoinResult<IcingaCheckPeriod>>,
+    //pub check_period: Option<IcingaJoinResult<IcingaPeriodAttributes>>,
     //pub event_command: Option<IcingaJoinResult<IcingaEventCommand>>,
     //pub command_endpoint: Option<IcingaJoinResult<IcingaCommandEndpoint>>,
 }
@@ -1273,7 +1346,7 @@ impl std::fmt::Display for IcingaHostJoinTypes {
 pub struct IcingaHostJoins {
     /// the check command object for the host
     pub check_command: Option<IcingaJoinResult<IcingaCheckCommand>>,
-    //pub check_period: Option<IcingaJoinResult<IcingaCheckPeriod>>,
+    //pub check_period: Option<IcingaJoinResult<IcingaPeriodAttributes>>,
     //pub event_command: Option<IcingaJoinResult<IcingaEventCommand>>,
     //pub command_endpoint: Option<IcingaJoinResult<IcingaCommandEndpoint>>,
 }
@@ -1302,6 +1375,18 @@ impl std::fmt::Display for IcingaNotificationJoinTypes {
             IcingaNotificationJoinTypes::Period => write!(f, "period"),
         }
     }
+}
+
+/// return type joins for notifications
+#[derive(Debug, Deserialize)]
+pub struct IcingaNotificationJoins {
+    /// the host this Notification is about
+    pub host: Option<IcingaJoinResult<IcingaHostAttributes>>,
+    /// the service this Notification is about
+    pub service: Option<IcingaJoinResult<IcingaServiceAttributes>>,
+    ///// the notification command object for the notification
+    //pub command: Option<IcingaJoinResult<IcingaNotificationCommandAttributes>>,
+    //pub period: Option<IcingaJoinResult<IcingaPeriodAttributes>>,
 }
 
 /// possible joins parameter values for dependencies
@@ -1333,6 +1418,20 @@ impl std::fmt::Display for IcingaDependencyJoinTypes {
     }
 }
 
+/// return type joins for dependencies
+#[derive(Debug, Deserialize)]
+pub struct IcingaDependencyJoins {
+    /// the child host of the dependency
+    pub child_host: Option<IcingaJoinResult<IcingaHostAttributes>>,
+    /// the child service of the dependency
+    pub child_service: Option<IcingaJoinResult<IcingaServiceAttributes>>,
+    /// the parent host of the dependency
+    pub parent_host: Option<IcingaJoinResult<IcingaHostAttributes>>,
+    /// the parent service of the dependency
+    pub parent_service: Option<IcingaJoinResult<IcingaServiceAttributes>>,
+    //pub period: Option<IcingaJoinResult<IcingaPeriodAttributes>>,
+}
+
 /// possible joins parameter values for users
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaUserJoinTypes {
@@ -1350,6 +1449,12 @@ impl std::fmt::Display for IcingaUserJoinTypes {
     }
 }
 
+/// return type joins for users
+#[derive(Debug, Deserialize)]
+pub struct IcingaUserJoins {
+    //pub period: Option<IcingaJoinResult<IcingaPeriodAttributes>>,
+}
+
 /// possible joins parameter values for zones
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaZoneJoinTypes {
@@ -1365,6 +1470,12 @@ impl std::fmt::Display for IcingaZoneJoinTypes {
             IcingaZoneJoinTypes::Parent => write!(f, "parent"),
         }
     }
+}
+
+/// return type joins for zones
+#[derive(Debug, Deserialize)]
+pub struct IcingaZoneJoins {
+    //pub parent: Option<IcingaJoinResult<IcingaZoneAttributes>>,
 }
 
 /// joins
@@ -1631,6 +1742,20 @@ mod test {
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
         icinga2.check_commands(&[IcingaMetadataType::UsedBy, IcingaMetadataType::Location])?;
+        Ok(())
+    }
+
+    #[traced_test]
+    #[test]
+    fn test_dependencies() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv()?;
+        let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
+            "ICINGA_TEST_INSTANCE_CONFIG",
+        )?))?;
+        icinga2.dependencies(
+            IcingaJoins::AllJoins,
+            &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
+        )?;
         Ok(())
     }
 }
