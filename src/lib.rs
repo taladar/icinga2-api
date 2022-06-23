@@ -263,16 +263,15 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
-    pub fn hosts(&self, used_by: bool, location: bool) -> Result<Vec<IcingaHost>, crate::Error> {
+    pub fn hosts(&self, meta: &[IcingaMetadataType]) -> Result<Vec<IcingaHost>, crate::Error> {
         let mut url = self
             .url
             .join("v1/objects/hosts")
             .map_err(crate::Error::CouldNotParseUrlFragment)?;
-        if used_by {
-            url.query_pairs_mut().append_pair("meta", "used_by");
-        }
-        if location {
-            url.query_pairs_mut().append_pair("meta", "location");
+        if !meta.is_empty() {
+            for v in meta {
+                url.query_pairs_mut().append_pair("meta", &v.to_string());
+            }
         }
         let ResultsWrapper { results } =
             self.rest::<(), ResultsWrapper<IcingaHost>>(http::Method::GET, url, None)?;
@@ -286,18 +285,16 @@ impl Icinga2 {
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
     pub fn services(
         &self,
-        used_by: bool,
-        location: bool,
+        meta: &[IcingaMetadataType],
     ) -> Result<Vec<IcingaService>, crate::Error> {
         let mut url = self
             .url
             .join("v1/objects/services")
             .map_err(crate::Error::CouldNotParseUrlFragment)?;
-        if used_by {
-            url.query_pairs_mut().append_pair("meta", "used_by");
-        }
-        if location {
-            url.query_pairs_mut().append_pair("meta", "location");
+        if !meta.is_empty() {
+            for v in meta {
+                url.query_pairs_mut().append_pair("meta", &v.to_string());
+            }
         }
         let ResultsWrapper { results } =
             self.rest::<(), ResultsWrapper<IcingaService>>(http::Method::GET, url, None)?;
@@ -1118,6 +1115,24 @@ pub struct IcingaObject {
     pub object_type: IcingaObjectType,
 }
 
+/// possible meta parameter values
+#[derive(Debug)]
+pub enum IcingaMetadataType {
+    /// includes information about the other icinga objects using each returned object
+    UsedBy,
+    /// includes information about the config file location of each returned object
+    Location,
+}
+
+impl std::fmt::Display for IcingaMetadataType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IcingaMetadataType::UsedBy => write!(f, "used_by"),
+            IcingaMetadataType::Location => write!(f, "location"),
+        }
+    }
+}
+
 /// metadata
 #[derive(Debug, Deserialize)]
 pub struct IcingaMetadata {
@@ -1192,7 +1207,7 @@ mod test {
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
-        icinga2.hosts(true, true)?;
+        icinga2.hosts(&[IcingaMetadataType::UsedBy, IcingaMetadataType::Location])?;
         Ok(())
     }
 
@@ -1203,7 +1218,7 @@ mod test {
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
-        icinga2.services(true, true)?;
+        icinga2.services(&[IcingaMetadataType::UsedBy, IcingaMetadataType::Location])?;
         Ok(())
     }
 }
