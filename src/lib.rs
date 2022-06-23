@@ -330,6 +330,29 @@ impl Icinga2 {
             self.rest::<(), ResultsWrapper<IcingaService>>(http::Method::GET, url, None)?;
         Ok(results)
     }
+
+    /// retrieve Icinga check commands
+    ///
+    /// # Errors
+    ///
+    /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    pub fn check_commands(
+        &self,
+        meta: &[IcingaMetadataType],
+    ) -> Result<Vec<IcingaCheckCommand>, crate::Error> {
+        let mut url = self
+            .url
+            .join("v1/objects/checkcommands")
+            .map_err(crate::Error::CouldNotParseUrlFragment)?;
+        if !meta.is_empty() {
+            for v in meta {
+                url.query_pairs_mut().append_pair("meta", &v.to_string());
+            }
+        }
+        let ResultsWrapper { results } =
+            self.rest::<(), ResultsWrapper<IcingaCheckCommand>>(http::Method::GET, url, None)?;
+        Ok(results)
+    }
 }
 
 /// wrapper for Json results
@@ -1213,7 +1236,7 @@ pub struct IcingaServiceJoins {
     /// the host this service is on
     pub host: Option<IcingaJoinResult<IcingaHostAttributes>>,
     /// the check command object for the service
-    pub check_command: Option<IcingaJoinResult<IcingaCheckCommand>>,
+    pub check_command: Option<IcingaJoinResult<IcingaCheckCommandAttributes>>,
     //pub check_period: Option<IcingaJoinResult<IcingaCheckPeriod>>,
     //pub event_command: Option<IcingaJoinResult<IcingaEventCommand>>,
     //pub command_endpoint: Option<IcingaJoinResult<IcingaCommandEndpoint>>,
@@ -1435,7 +1458,7 @@ pub struct IcingaFunction {
 
 /// a check command (e.g. in a join)
 #[derive(Debug, Deserialize)]
-pub struct IcingaCheckCommand {
+pub struct IcingaCheckCommandAttributes {
     /// the name of the check command as deserialized from __name
     #[serde(rename = "__name")]
     pub full_name: String,
@@ -1479,6 +1502,20 @@ pub struct IcingaCheckCommand {
     /// the zone this object is a member of
     #[serde(deserialize_with = "deserialize_empty_string_or_string")]
     pub zone: Option<String>,
+}
+
+/// the result of an icinga check commands query
+#[derive(Debug, Deserialize)]
+pub struct IcingaCheckCommand {
+    /// host attributes
+    pub attrs: IcingaCheckCommandAttributes,
+    /// metadata, only contains data if the parameter meta contains one or more values
+    pub meta: IcingaMetadata,
+    /// object name
+    pub name: String,
+    /// type of icinga object, should always be CheckCommand for this
+    #[serde(rename = "type")]
+    pub object_type: IcingaObjectType,
 }
 
 // TODO: filters https://icinga.com/docs/icinga-2/latest/doc/12-icinga2-api/#advanced-filters (operations, functions,.. below are just a selection of the most immediately interesting ones)
@@ -1583,6 +1620,17 @@ mod test {
             },
             &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
         )?;
+        Ok(())
+    }
+
+    #[traced_test]
+    #[test]
+    fn test_check_commands() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv()?;
+        let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
+            "ICINGA_TEST_INSTANCE_CONFIG",
+        )?))?;
+        icinga2.check_commands(&[IcingaMetadataType::UsedBy, IcingaMetadataType::Location])?;
         Ok(())
     }
 }
