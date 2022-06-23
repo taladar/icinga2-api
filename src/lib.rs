@@ -263,11 +263,17 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
-    pub fn hosts(&self) -> Result<Vec<IcingaHost>, crate::Error> {
-        let url = self
+    pub fn hosts(&self, used_by: bool, location: bool) -> Result<Vec<IcingaHost>, crate::Error> {
+        let mut url = self
             .url
             .join("v1/objects/hosts")
             .map_err(crate::Error::CouldNotParseUrlFragment)?;
+        if used_by {
+            url.query_pairs_mut().append_pair("meta", "used_by");
+        }
+        if location {
+            url.query_pairs_mut().append_pair("meta", "location");
+        }
         let ResultsWrapper { results } =
             self.rest::<(), ResultsWrapper<IcingaHost>>(http::Method::GET, url, None)?;
         Ok(results)
@@ -278,11 +284,21 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
-    pub fn services(&self) -> Result<Vec<IcingaService>, crate::Error> {
-        let url = self
+    pub fn services(
+        &self,
+        used_by: bool,
+        location: bool,
+    ) -> Result<Vec<IcingaService>, crate::Error> {
+        let mut url = self
             .url
             .join("v1/objects/services")
             .map_err(crate::Error::CouldNotParseUrlFragment)?;
+        if used_by {
+            url.query_pairs_mut().append_pair("meta", "used_by");
+        }
+        if location {
+            url.query_pairs_mut().append_pair("meta", "location");
+        }
         let ResultsWrapper { results } =
             self.rest::<(), ResultsWrapper<IcingaService>>(http::Method::GET, url, None)?;
         Ok(results)
@@ -307,6 +323,12 @@ pub enum IcingaObjectType {
     CheckResult,
     /// a performance data value
     PerfdataValue,
+    /// an icinga comment
+    Comment,
+    /// an icinga dependency between hosts or services
+    Dependency,
+    /// an icinga notification
+    Notification,
 }
 
 /// deserializes a unix timestamp with sub second accuracy
@@ -802,7 +824,8 @@ pub struct IcingaHost {
     /// host attributes
     pub attrs: IcingaHostAttributes,
     //joins:
-    //meta:
+    /// metadata, only contains data if the parameter meta contains one or more values
+    pub meta: IcingaMetadata,
     /// object name
     pub name: String,
     /// type of icinga object, should always be Host for this
@@ -1076,12 +1099,32 @@ pub struct IcingaService {
     /// service attributes
     pub attrs: IcingaServiceAttributes,
     //joins:
-    //meta:
+    /// metadata, only contains data if the parameter meta contains one or more values
+    pub meta: IcingaMetadata,
     /// object name
     pub name: String,
     /// type of icinga object, should always be Host for this
     #[serde(rename = "type")]
     pub object_type: IcingaObjectType,
+}
+
+/// the most minimal description of an icinga object
+#[derive(Debug, Deserialize)]
+pub struct IcingaObject {
+    /// the name of the object
+    pub name: String,
+    /// the type of the object
+    #[serde(rename = "type")]
+    pub object_type: IcingaObjectType,
+}
+
+/// metadata
+#[derive(Debug, Deserialize)]
+pub struct IcingaMetadata {
+    /// which other icinga objects use this object
+    pub used_by: Option<Vec<IcingaObject>>,
+    /// where in the config file this object is defined
+    pub location: Option<IcingaSourceLocation>,
 }
 
 // TODO: filters https://icinga.com/docs/icinga-2/latest/doc/12-icinga2-api/#advanced-filters (operations, functions,.. below are just a selection of the most immediately interesting ones)
@@ -1149,7 +1192,7 @@ mod test {
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
-        icinga2.hosts()?;
+        icinga2.hosts(true, true)?;
         Ok(())
     }
 
@@ -1160,7 +1203,7 @@ mod test {
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
-        icinga2.services()?;
+        icinga2.services(true, true)?;
         Ok(())
     }
 }
