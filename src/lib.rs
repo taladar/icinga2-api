@@ -263,11 +263,32 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
-    pub fn hosts(&self, meta: &[IcingaMetadataType]) -> Result<Vec<IcingaHost>, crate::Error> {
+    pub fn hosts(
+        &self,
+        joins: IcingaJoins<IcingaHostJoinTypes>,
+        meta: &[IcingaMetadataType],
+    ) -> Result<Vec<IcingaHost>, crate::Error> {
         let mut url = self
             .url
             .join("v1/objects/hosts")
             .map_err(crate::Error::CouldNotParseUrlFragment)?;
+        match joins {
+            IcingaJoins::NoJoins => (),
+            IcingaJoins::AllJoins => {
+                url.query_pairs_mut().append_pair("all_joins", "1");
+            }
+            IcingaJoins::SpecificJoins { full, partial } => {
+                for j in full {
+                    url.query_pairs_mut().append_pair("joins", &j.to_string());
+                }
+                for (j, fields) in partial {
+                    for f in fields {
+                        url.query_pairs_mut()
+                            .append_pair("joins", &format!("{}.{}", &j.to_string(), &f));
+                    }
+                }
+            }
+        }
         if !meta.is_empty() {
             for v in meta {
                 url.query_pairs_mut().append_pair("meta", &v.to_string());
@@ -285,12 +306,30 @@ impl Icinga2 {
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
     pub fn services(
         &self,
+        joins: IcingaJoins<IcingaServiceJoinTypes>,
         meta: &[IcingaMetadataType],
     ) -> Result<Vec<IcingaService>, crate::Error> {
         let mut url = self
             .url
             .join("v1/objects/services")
             .map_err(crate::Error::CouldNotParseUrlFragment)?;
+        match joins {
+            IcingaJoins::NoJoins => (),
+            IcingaJoins::AllJoins => {
+                url.query_pairs_mut().append_pair("all_joins", "1");
+            }
+            IcingaJoins::SpecificJoins { full, partial } => {
+                for j in full {
+                    url.query_pairs_mut().append_pair("joins", &j.to_string());
+                }
+                for (j, fields) in partial {
+                    for f in fields {
+                        url.query_pairs_mut()
+                            .append_pair("joins", &format!("{}.{}", &j.to_string(), &f));
+                    }
+                }
+            }
+        }
         if !meta.is_empty() {
             for v in meta {
                 url.query_pairs_mut().append_pair("meta", &v.to_string());
@@ -326,6 +365,10 @@ pub enum IcingaObjectType {
     Dependency,
     /// an icinga notification
     Notification,
+    /// a function
+    Function,
+    /// a check command
+    CheckCommand,
 }
 
 /// deserializes a unix timestamp with sub second accuracy
@@ -600,6 +643,8 @@ pub enum IcingaVariableValue {
     Object(BTreeMap<String, IcingaVariableValue>),
     /// Boolean
     Boolean(bool),
+    /// Integer
+    Integer(i64),
 }
 
 /// acknowledgement type
@@ -624,6 +669,18 @@ pub enum HAMode {
     Everywhere,
 }
 
+/// command parameters (scalar values basically)
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum IcingaCommandParameter {
+    /// string value
+    String(String),
+    /// Boolean
+    Boolean(bool),
+    /// Integer
+    Integer(i64),
+}
+
 /// command to execute with parameters
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
@@ -632,7 +689,7 @@ pub enum IcingaCommand {
     /// word splitting
     Shell(String),
     /// individual command and parameters
-    Exec(Vec<String>),
+    Exec(Vec<IcingaCommandParameter>),
 }
 
 /// attributes on an [IcingaHost]
@@ -820,7 +877,8 @@ pub struct IcingaHostAttributes {
 pub struct IcingaHost {
     /// host attributes
     pub attrs: IcingaHostAttributes,
-    //joins:
+    /// joins
+    pub joins: IcingaHostJoins,
     /// metadata, only contains data if the parameter meta contains one or more values
     pub meta: IcingaMetadata,
     /// object name
@@ -1095,7 +1153,8 @@ pub struct IcingaServiceAttributes {
 pub struct IcingaService {
     /// service attributes
     pub attrs: IcingaServiceAttributes,
-    //joins:
+    /// joins
+    pub joins: IcingaServiceJoins,
     /// metadata, only contains data if the parameter meta contains one or more values
     pub meta: IcingaMetadata,
     /// object name
@@ -1113,6 +1172,204 @@ pub struct IcingaObject {
     /// the type of the object
     #[serde(rename = "type")]
     pub object_type: IcingaObjectType,
+}
+
+/// a marker trait for all the various join types for the different objects
+pub trait IcingaJoinType {}
+
+/// possible joins parameter values for services
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum IcingaServiceJoinTypes {
+    /// the host the service is on
+    Host,
+    /// the check command object for the service
+    CheckCommand,
+    /// the check period object for the service
+    CheckPeriod,
+    /// the event command object for the service
+    EventCommand,
+    /// the command endpoint object for the service
+    CommandEndpoint,
+}
+
+impl IcingaJoinType for IcingaServiceJoinTypes {}
+
+impl std::fmt::Display for IcingaServiceJoinTypes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IcingaServiceJoinTypes::Host => write!(f, "host"),
+            IcingaServiceJoinTypes::CheckCommand => write!(f, "check_command"),
+            IcingaServiceJoinTypes::CheckPeriod => write!(f, "check_period"),
+            IcingaServiceJoinTypes::EventCommand => write!(f, "event_command"),
+            IcingaServiceJoinTypes::CommandEndpoint => write!(f, "command_endpoint"),
+        }
+    }
+}
+
+/// return type for joins, either full or partial
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum IcingaJoinResult<T> {
+    /// a full result we get if we just specified e.g. joins=host
+    Full(T),
+    /// a partial result we get if we specified individual fields, e.g. joins=host.name
+    Partial(BTreeMap<String, serde_json::Value>),
+}
+
+/// return type joins for services
+#[derive(Debug, Deserialize)]
+pub struct IcingaServiceJoins {
+    /// the host this service is on
+    pub host: Option<IcingaJoinResult<IcingaHostAttributes>>,
+    /// the check command object for the service
+    pub check_command: Option<IcingaJoinResult<IcingaCheckCommand>>,
+    //pub check_period: Option<IcingaJoinResult<IcingaCheckPeriod>>,
+    //pub event_command: Option<IcingaJoinResult<IcingaEventCommand>>,
+    //pub command_endpoint: Option<IcingaJoinResult<IcingaCommandEndpoint>>,
+}
+
+/// possible joins parameter values for hosts
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum IcingaHostJoinTypes {
+    /// the check command object for the host
+    CheckCommand,
+    /// the check period object for the host
+    CheckPeriod,
+    /// the event command object for the host
+    EventCommand,
+    /// the command endpoint object for the host
+    CommandEndpoint,
+}
+
+impl IcingaJoinType for IcingaHostJoinTypes {}
+
+impl std::fmt::Display for IcingaHostJoinTypes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IcingaHostJoinTypes::CheckCommand => write!(f, "check_command"),
+            IcingaHostJoinTypes::CheckPeriod => write!(f, "check_period"),
+            IcingaHostJoinTypes::EventCommand => write!(f, "event_command"),
+            IcingaHostJoinTypes::CommandEndpoint => write!(f, "command_endpoint"),
+        }
+    }
+}
+
+/// return type joins for hosts
+#[derive(Debug, Deserialize)]
+pub struct IcingaHostJoins {
+    /// the check command object for the host
+    pub check_command: Option<IcingaJoinResult<IcingaCheckCommand>>,
+    //pub check_period: Option<IcingaJoinResult<IcingaCheckPeriod>>,
+    //pub event_command: Option<IcingaJoinResult<IcingaEventCommand>>,
+    //pub command_endpoint: Option<IcingaJoinResult<IcingaCommandEndpoint>>,
+}
+
+/// possible joins parameter values for notifications
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum IcingaNotificationJoinTypes {
+    /// the host the notification is about
+    Host,
+    /// the service the notification is about
+    Service,
+    /// the notification command object for the notification
+    Command,
+    /// the notification period object for the notification
+    Period,
+}
+
+impl IcingaJoinType for IcingaNotificationJoinTypes {}
+
+impl std::fmt::Display for IcingaNotificationJoinTypes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IcingaNotificationJoinTypes::Host => write!(f, "host"),
+            IcingaNotificationJoinTypes::Service => write!(f, "service"),
+            IcingaNotificationJoinTypes::Command => write!(f, "command"),
+            IcingaNotificationJoinTypes::Period => write!(f, "period"),
+        }
+    }
+}
+
+/// possible joins parameter values for dependencies
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum IcingaDependencyJoinTypes {
+    /// the child host of the dependency
+    ChildHost,
+    /// the child service of the dependency
+    ChildService,
+    /// the parent host of the dependency
+    ParentHost,
+    /// the parent service of the dependency
+    ParentService,
+    /// the period object for which the dependency is valid
+    Period,
+}
+
+impl IcingaJoinType for IcingaDependencyJoinTypes {}
+
+impl std::fmt::Display for IcingaDependencyJoinTypes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IcingaDependencyJoinTypes::ChildHost => write!(f, "child_host"),
+            IcingaDependencyJoinTypes::ChildService => write!(f, "child_service"),
+            IcingaDependencyJoinTypes::ParentHost => write!(f, "parent_host"),
+            IcingaDependencyJoinTypes::ParentService => write!(f, "parent_service"),
+            IcingaDependencyJoinTypes::Period => write!(f, "period"),
+        }
+    }
+}
+
+/// possible joins parameter values for users
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum IcingaUserJoinTypes {
+    /// the period object for which the user is valid (most likely something like shift or work hours)
+    Period,
+}
+
+impl IcingaJoinType for IcingaUserJoinTypes {}
+
+impl std::fmt::Display for IcingaUserJoinTypes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IcingaUserJoinTypes::Period => write!(f, "period"),
+        }
+    }
+}
+
+/// possible joins parameter values for zones
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum IcingaZoneJoinTypes {
+    /// the parent zone object
+    Parent,
+}
+
+impl IcingaJoinType for IcingaZoneJoinTypes {}
+
+impl std::fmt::Display for IcingaZoneJoinTypes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IcingaZoneJoinTypes::Parent => write!(f, "parent"),
+        }
+    }
+}
+
+/// joins
+#[derive(Debug)]
+pub enum IcingaJoins<'a, JT>
+where
+    JT: IcingaJoinType + Ord + std::fmt::Display,
+{
+    /// do not include any joins
+    NoJoins,
+    /// include specific joins
+    SpecificJoins {
+        /// include the full objects for these joins
+        full: Vec<JT>,
+        /// include just the specified fields for these joins
+        partial: BTreeMap<JT, Vec<&'a str>>,
+    },
+    /// include full objects for all possible joins
+    AllJoins,
 }
 
 /// possible meta parameter values
@@ -1140,6 +1397,97 @@ pub struct IcingaMetadata {
     pub used_by: Option<Vec<IcingaObject>>,
     /// where in the config file this object is defined
     pub location: Option<IcingaSourceLocation>,
+}
+
+/// set_if condition in command argument description
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum IcingaArgumentCondition {
+    /// a string condition, most likely a boolean variable
+    String(String),
+    /// a function condition
+    Function(IcingaFunction),
+}
+
+/// the description of a single
+#[derive(Debug, Deserialize)]
+pub struct IcingaCommandArgumentDescription {
+    /// the description of this argument
+    pub description: Option<String>,
+    /// the default value for this argument
+    pub value: Option<String>,
+    /// name of an argument to set
+    pub key: Option<String>,
+    /// should the key be repeated
+    pub repeat_key: Option<bool>,
+    /// condition when to set it
+    pub set_if: Option<IcingaArgumentCondition>,
+    /// is this argument required
+    pub required: Option<bool>,
+}
+
+/// the description of an icinga function
+#[derive(Debug, Deserialize)]
+pub struct IcingaFunction {
+    /// the arguments
+    pub arguments: Vec<String>,
+    /// is this deprecated
+    pub deprecated: bool,
+    /// the name
+    pub name: String,
+    /// is this command side-effect free
+    pub side_effect_free: bool,
+    /// type of object
+    #[serde(rename = "type")]
+    pub object_type: IcingaObjectType,
+}
+
+/// a check command (e.g. in a join)
+#[derive(Debug, Deserialize)]
+pub struct IcingaCheckCommand {
+    /// the name of the check command as deserialized from __name
+    #[serde(rename = "__name")]
+    pub full_name: String,
+    /// the name of the check command as deserialized from name
+    pub name: String,
+    /// is this check command active
+    pub active: bool,
+    /// the descriptions of the command arguments
+    pub arguments: Option<BTreeMap<String, IcingaCommandArgumentDescription>>,
+    /// the actual command
+    pub command: Option<IcingaCommand>,
+    /// environment variables
+    pub env: Option<BTreeMap<String, String>>,
+    /// function for execution
+    pub execute: IcingaFunction,
+    /// whether to run a check once or everywhere
+    pub ha_mode: HAMode,
+    /// original values of object attributes modified at runtime
+    pub original_attributes: Option<()>,
+    /// configuration package name this object belongs to, _etc for local configuration
+    /// _api for runtime created objects
+    pub package: String,
+    /// object has been paused at runtime
+    pub paused: bool,
+    /// location information whether the configuration files are stored
+    pub source_location: IcingaSourceLocation,
+    /// templates imported on object compilation
+    pub templates: Vec<String>,
+    /// command timeout
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
+    pub timeout: Option<time::Duration>,
+    /// type of object
+    #[serde(rename = "type")]
+    pub object_type: IcingaObjectType,
+    /// custom variables specific to this host
+    pub vars: Option<BTreeMap<String, IcingaVariableValue>>,
+    /// timestamp when the object was created or modified. syncred throughout cluster nodes
+    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    pub version: Option<time::OffsetDateTime>,
+    /// the zone this object is a member of
+    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+    pub zone: Option<String>,
 }
 
 // TODO: filters https://icinga.com/docs/icinga-2/latest/doc/12-icinga2-api/#advanced-filters (operations, functions,.. below are just a selection of the most immediately interesting ones)
@@ -1207,7 +1555,10 @@ mod test {
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
-        icinga2.hosts(&[IcingaMetadataType::UsedBy, IcingaMetadataType::Location])?;
+        icinga2.hosts(
+            IcingaJoins::AllJoins,
+            &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
+        )?;
         Ok(())
     }
 
@@ -1218,7 +1569,29 @@ mod test {
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
-        icinga2.services(&[IcingaMetadataType::UsedBy, IcingaMetadataType::Location])?;
+        icinga2.services(
+            IcingaJoins::AllJoins,
+            &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
+        )?;
+        Ok(())
+    }
+
+    #[traced_test]
+    #[test]
+    fn test_services_partial_host_join() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv()?;
+        let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
+            "ICINGA_TEST_INSTANCE_CONFIG",
+        )?))?;
+        let mut partial = BTreeMap::new();
+        partial.insert(IcingaServiceJoinTypes::Host, vec!["name"]);
+        icinga2.services(
+            IcingaJoins::SpecificJoins {
+                full: vec![],
+                partial,
+            },
+            &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
+        )?;
         Ok(())
     }
 }
