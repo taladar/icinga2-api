@@ -39,6 +39,7 @@ pub mod downtime;
 
 // other types
 pub mod check_result;
+pub mod checkable;
 pub mod command;
 pub mod joins;
 pub mod metadata;
