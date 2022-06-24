@@ -4,7 +4,8 @@ use serde::Deserialize;
 use crate::enums::{IcingaObjectType, IcingaStateType};
 
 use super::{
-    command::IcingaCommand, performance_data::IcingaPerformanceData, service::IcingaServiceState,
+    command::IcingaCommandLine, performance_data::IcingaPerformanceData,
+    service::IcingaServiceState,
 };
 use crate::serde::{deserialize_icinga_timestamp, deserialize_optional_seconds_as_duration};
 
@@ -29,7 +30,7 @@ pub struct IcingaCheckResult {
     /// name of host which provided this check result
     pub check_source: String,
     /// the command called for the check
-    pub command: Option<IcingaCommand>,
+    pub command: Option<IcingaCommandLine>,
     /// start of command execution
     #[serde(deserialize_with = "deserialize_icinga_timestamp")]
     pub execution_start: time::OffsetDateTime,

@@ -10,11 +10,14 @@ use crate::{
     },
 };
 
-use super::check_result::IcingaCheckResult;
+use super::{check_result::IcingaCheckResult, custom_var_object::IcingaCustomVarObject};
 
 /// shared attributes on any checkable object (host and service)
 #[derive(Debug, Deserialize)]
 pub struct IcingaCheckable {
+    /// shared config object and custom variable fields
+    #[serde(flatten)]
+    pub custom_var: IcingaCustomVarObject,
     /// the type of acknowledgement (includes None)
     pub acknowledgement: IcingaAcknowledgementType,
     /// when the acknowledgement expires

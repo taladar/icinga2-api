@@ -1,31 +1,25 @@
 //! Icinga2 dependency
-use std::collections::BTreeMap;
 
 use serde::Deserialize;
 
-use crate::enums::{HAMode, IcingaHostOrServiceState};
-use crate::serde::{deserialize_empty_string_or_string, deserialize_optional_icinga_timestamp};
+use crate::enums::IcingaHostOrServiceState;
 
+use super::custom_var_object::IcingaCustomVarObject;
 use super::joins::IcingaJoinResult;
 use super::metadata::IcingaMetadata;
 use super::{
     host::IcingaHostAttributes, service::IcingaServiceAttributes, IcingaJoinType, IcingaObjectType,
-    IcingaSourceLocation, IcingaVariableValue,
 };
 
 /// attributes on an [IcingaDependency]
 #[derive(Debug, Deserialize)]
 pub struct IcingaDependencyAttributes {
-    /// full object name
-    #[serde(rename = "__name")]
-    pub full_name: String,
-    /// service name (without host)
-    pub name: String,
-    /// type of icinga object, should always be Service for this
+    /// type of icinga object, should always be Dependency for this
     #[serde(rename = "type")]
     pub object_type: IcingaObjectType,
-    /// whether this dependency is active
-    pub active: bool,
+    /// shared config object and custom variable fields
+    #[serde(flatten)]
+    pub custom_var: IcingaCustomVarObject,
     /// the child host name
     pub child_host_name: String,
     /// the child service name
@@ -38,33 +32,12 @@ pub struct IcingaDependencyAttributes {
     pub disable_checks: bool,
     /// whether notifications are disabled by this dependency
     pub disable_notifications: bool,
-    /// whether to run a check once or everywhere
-    pub ha_mode: HAMode,
     /// whether this dependency ignores soft states
     pub ignore_soft_states: bool,
-    /// original values of object attributes modified at runtime
-    pub original_attributes: Option<()>,
-    /// configuration package name this object belongs to, _etc for local configuration
-    /// _api for runtime created objects
-    pub package: String,
-    /// object has been paused at runtime
-    pub paused: bool,
     /// the name of the period when this dependency is active
     pub period: String,
     /// states when this dependency is enabled
     pub states: Vec<IcingaHostOrServiceState>,
-    /// location information whether the configuration files are stored
-    pub source_location: IcingaSourceLocation,
-    /// templates imported on object compilation
-    pub templates: Vec<String>,
-    /// custom variables specific to this host
-    pub vars: Option<BTreeMap<String, IcingaVariableValue>>,
-    /// timestamp when the object was created or modified. syncred throughout cluster nodes
-    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
-    pub version: Option<time::OffsetDateTime>,
-    /// the zone this object is a member of
-    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
-    pub zone: Option<String>,
 }
 
 /// the result of an icinga dependencies query

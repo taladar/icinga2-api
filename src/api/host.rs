@@ -1,22 +1,17 @@
 //! Icinga2 host
-use std::collections::BTreeMap;
 
 use serde::Deserialize;
 use serde_repr::Deserialize_repr;
 
 use crate::{
-    enums::{HAMode, IcingaObjectType},
-    serde::{
-        deserialize_empty_string_or_ipv6_address, deserialize_empty_string_or_string,
-        deserialize_optional_icinga_timestamp,
-    },
+    enums::IcingaObjectType,
+    serde::{deserialize_empty_string_or_ipv6_address, deserialize_optional_icinga_timestamp},
 };
 
 use super::{
     checkable::IcingaCheckable,
     joins::{IcingaJoinResult, IcingaJoinType},
     metadata::IcingaMetadata,
-    IcingaSourceLocation, IcingaVariableValue,
 };
 
 /// host state
@@ -47,19 +42,12 @@ pub enum IcingaHostStateByName {
 /// attributes on an [IcingaHost]
 #[derive(Debug, Deserialize)]
 pub struct IcingaHostAttributes {
-    /// full object name
-    #[serde(rename = "__name")]
-    pub full_name: String,
-    /// host name
-    pub name: String,
     /// type of icinga object, should always be Host for this
     #[serde(rename = "type")]
     pub object_type: IcingaObjectType,
     /// all the attributes from the icinga checkable object (shared fields between host and service)
     #[serde(flatten)]
     pub checkable: IcingaCheckable,
-    /// object is active (being checked)
-    pub active: bool,
     /// host Ipv4 address
     pub address: std::net::Ipv4Addr,
     /// optional host Ipv6 address
@@ -69,8 +57,6 @@ pub struct IcingaHostAttributes {
     pub display_name: String,
     /// a list of groups the host belongs to
     pub groups: Vec<String>,
-    /// whether to run a check once or everywhere
-    pub ha_mode: HAMode,
     /// the previous hard state
     pub last_hard_state: IcingaHostState,
     /// the previous state
@@ -81,27 +67,8 @@ pub struct IcingaHostAttributes {
     /// when the last UP state occurred
     #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
     pub last_state_up: Option<time::OffsetDateTime>,
-    /// original values of object attributes modified at runtime
-    pub original_attributes: Option<()>,
-    /// configuration package name this object belongs to, _etc for local configuration
-    /// _api for runtime created objects
-    pub package: String,
-    /// object has been paused at runtime
-    pub paused: bool,
-    /// location information whether the configuration files are stored
-    pub source_location: IcingaSourceLocation,
     /// the current state
     pub state: IcingaHostState,
-    /// templates imported on object compilation
-    pub templates: Vec<String>,
-    /// custom variables specific to this host
-    pub vars: BTreeMap<String, IcingaVariableValue>,
-    /// timestamp when the object was created or modified. syncred throughout cluster nodes
-    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
-    pub version: Option<time::OffsetDateTime>,
-    /// the zone this object is a member of
-    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
-    pub zone: Option<String>,
 }
 
 /// the result of an icinga hosts query

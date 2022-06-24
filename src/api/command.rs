@@ -1,7 +1,30 @@
 //! Icinga2 structs representing various command related concepts
+use std::collections::BTreeMap;
+
 use serde::Deserialize;
 
-use super::IcingaFunction;
+use super::{custom_var_object::IcingaCustomVarObject, IcingaFunction};
+use crate::serde::deserialize_optional_seconds_as_duration;
+
+/// shared fields in the various command objects
+#[derive(Debug, Deserialize)]
+pub struct IcingaCommand {
+    /// shared config object and custom variable fields
+    #[serde(flatten)]
+    pub custom_var: IcingaCustomVarObject,
+    /// the descriptions of the command arguments
+    pub arguments: Option<BTreeMap<String, IcingaCommandArgumentDescription>>,
+    /// the actual command
+    pub command: Option<IcingaCommandLine>,
+    /// environment variables
+    pub env: Option<BTreeMap<String, String>>,
+    /// function for execution
+    pub execute: IcingaFunction,
+    /// command timeout
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
+    pub timeout: Option<time::Duration>,
+}
 
 /// command parameters (scalar values basically)
 #[derive(Debug, Deserialize)]
@@ -18,7 +41,7 @@ pub enum IcingaCommandParameter {
 /// command to execute with parameters
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
-pub enum IcingaCommand {
+pub enum IcingaCommandLine {
     /// a single string for the whole command, will likely need a shell to do
     /// word splitting
     Shell(String),

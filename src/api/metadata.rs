@@ -2,7 +2,7 @@
 //! and the result of queries including metadata
 use serde::Deserialize;
 
-use super::IcingaSourceLocation;
+use super::config_object::IcingaSourceLocation;
 
 /// possible meta parameter values
 #[derive(Debug)]

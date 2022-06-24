@@ -1,6 +1,6 @@
 //! The main API object and some small structs that appear in more than one query result
 
-use std::{collections::BTreeMap, path::Path, str::from_utf8};
+use std::{path::Path, str::from_utf8};
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
@@ -41,6 +41,8 @@ pub mod downtime;
 pub mod check_result;
 pub mod checkable;
 pub mod command;
+pub mod config_object;
+pub mod custom_var_object;
 pub mod joins;
 pub mod metadata;
 pub mod performance_data;
@@ -338,37 +340,6 @@ impl Icinga2 {
 pub struct ResultsWrapper<T> {
     /// the internal field in the Icinga2 object containing all an array of the actual results
     results: Vec<T>,
-}
-
-/// an icinga source location inside the icinga config files
-#[derive(Debug, Deserialize)]
-pub struct IcingaSourceLocation {
-    /// path of the config file
-    pub path: String,
-    /// start line
-    pub first_line: u64,
-    /// start column
-    pub first_column: u64,
-    /// end line
-    pub last_line: u64,
-    /// end column
-    pub last_column: u64,
-}
-
-/// an icinga variable value
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub enum IcingaVariableValue {
-    /// string value
-    String(String),
-    /// list of strings value
-    List(Vec<String>),
-    /// key/value object
-    Object(BTreeMap<String, IcingaVariableValue>),
-    /// Boolean
-    Boolean(bool),
-    /// Integer
-    Integer(i64),
 }
 
 /// the most minimal description of an icinga object
