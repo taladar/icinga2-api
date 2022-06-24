@@ -9,10 +9,15 @@ use crate::enums::IcingaObjectType;
 use self::{
     check_command::IcingaCheckCommand,
     dependency::{IcingaDependency, IcingaDependencyJoinTypes},
+    event_command::IcingaEventCommand,
     host::{IcingaHost, IcingaHostJoinTypes},
+    host_group::IcingaHostGroup,
     joins::{IcingaJoinType, IcingaJoins},
     metadata::IcingaMetadataType,
+    notification_command::IcingaNotificationCommand,
     service::{IcingaService, IcingaServiceJoinTypes},
+    service_group::IcingaServiceGroup,
+    user_group::IcingaUserGroup,
 };
 
 // monitoring objects
@@ -311,6 +316,121 @@ impl Icinga2 {
         }
         let ResultsWrapper { results } =
             self.rest::<(), ResultsWrapper<IcingaCheckCommand>>(http::Method::GET, url, None)?;
+        Ok(results)
+    }
+
+    /// retrieve Icinga notification commands
+    ///
+    /// # Errors
+    ///
+    /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    pub fn notification_commands(
+        &self,
+        meta: &[IcingaMetadataType],
+    ) -> Result<Vec<IcingaNotificationCommand>, crate::error::Error> {
+        let mut url = self
+            .url
+            .join("v1/objects/notificationcommands")
+            .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
+        if !meta.is_empty() {
+            for v in meta {
+                url.query_pairs_mut().append_pair("meta", &v.to_string());
+            }
+        }
+        let ResultsWrapper { results } = self
+            .rest::<(), ResultsWrapper<IcingaNotificationCommand>>(http::Method::GET, url, None)?;
+        Ok(results)
+    }
+
+    /// retrieve Icinga event commands
+    ///
+    /// # Errors
+    ///
+    /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    pub fn event_commands(
+        &self,
+        meta: &[IcingaMetadataType],
+    ) -> Result<Vec<IcingaEventCommand>, crate::error::Error> {
+        let mut url = self
+            .url
+            .join("v1/objects/eventcommands")
+            .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
+        if !meta.is_empty() {
+            for v in meta {
+                url.query_pairs_mut().append_pair("meta", &v.to_string());
+            }
+        }
+        let ResultsWrapper { results } =
+            self.rest::<(), ResultsWrapper<IcingaEventCommand>>(http::Method::GET, url, None)?;
+        Ok(results)
+    }
+
+    /// retrieve Icinga host groups
+    ///
+    /// # Errors
+    ///
+    /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    pub fn host_groups(
+        &self,
+        meta: &[IcingaMetadataType],
+    ) -> Result<Vec<IcingaHostGroup>, crate::error::Error> {
+        let mut url = self
+            .url
+            .join("v1/objects/hostgroups")
+            .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
+        if !meta.is_empty() {
+            for v in meta {
+                url.query_pairs_mut().append_pair("meta", &v.to_string());
+            }
+        }
+        let ResultsWrapper { results } =
+            self.rest::<(), ResultsWrapper<IcingaHostGroup>>(http::Method::GET, url, None)?;
+        Ok(results)
+    }
+
+    /// retrieve Icinga service groups
+    ///
+    /// # Errors
+    ///
+    /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    pub fn service_groups(
+        &self,
+        meta: &[IcingaMetadataType],
+    ) -> Result<Vec<IcingaServiceGroup>, crate::error::Error> {
+        let mut url = self
+            .url
+            .join("v1/objects/servicegroups")
+            .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
+        if !meta.is_empty() {
+            for v in meta {
+                url.query_pairs_mut().append_pair("meta", &v.to_string());
+            }
+        }
+        let ResultsWrapper { results } =
+            self.rest::<(), ResultsWrapper<IcingaServiceGroup>>(http::Method::GET, url, None)?;
+        Ok(results)
+    }
+
+    /// retrieve Icinga user groups
+    ///
+    /// # Errors
+    ///
+    /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    pub fn user_groups(
+        &self,
+        meta: &[IcingaMetadataType],
+    ) -> Result<Vec<IcingaUserGroup>, crate::error::Error> {
+        let mut url = self
+            .url
+            .join("v1/objects/usergroups")
+            .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
+        if !meta.is_empty() {
+            for v in meta {
+                url.query_pairs_mut().append_pair("meta", &v.to_string());
+            }
+        }
+        let ResultsWrapper { results } =
+            self.rest::<(), ResultsWrapper<IcingaUserGroup>>(http::Method::GET, url, None)?;
         Ok(results)
     }
 

@@ -61,23 +61,29 @@ pub enum IcingaArgumentCondition {
 
 /// the description of a single
 #[derive(Debug, Deserialize)]
-pub struct IcingaCommandArgumentDescription {
-    /// the description of this argument
-    pub description: Option<String>,
-    /// the default value for this argument
-    pub value: Option<String>,
-    /// name of an argument to set
-    pub key: Option<String>,
-    /// should the key be skipped
-    pub skip_key: Option<bool>,
-    /// should the key be repeated
-    pub repeat_key: Option<bool>,
-    /// condition when to set it
-    pub set_if: Option<IcingaArgumentCondition>,
-    /// is this argument required
-    pub required: Option<bool>,
-    /// determines the order in which the arguments are used
-    pub order: Option<u64>,
-    /// separator for multiple values
-    pub separator: Option<String>,
+#[serde(untagged)]
+pub enum IcingaCommandArgumentDescription {
+    /// a simple string with the argument(s)
+    String(String),
+    /// a full description with details
+    FullDescription {
+        /// the description of this argument
+        description: Option<String>,
+        /// the default value for this argument
+        value: Option<String>,
+        /// name of an argument to set
+        key: Option<String>,
+        /// should the key be skipped
+        skip_key: Option<bool>,
+        /// should the key be repeated
+        repeat_key: Option<bool>,
+        /// condition when to set it
+        set_if: Option<IcingaArgumentCondition>,
+        /// is this argument required
+        required: Option<bool>,
+        /// determines the order in which the arguments are used
+        order: Option<u64>,
+        /// separator for multiple values
+        separator: Option<String>,
+    },
 }

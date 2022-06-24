@@ -57,6 +57,16 @@ pub enum IcingaObjectType {
     Function,
     /// a check command
     CheckCommand,
+    /// a notification command
+    NotificationCommand,
+    /// an event command
+    EventCommand,
+    /// a host group
+    HostGroup,
+    /// a service group
+    ServiceGroup,
+    /// a user group
+    UserGroup,
 }
 
 /// acknowledgement type
