@@ -51,32 +51,6 @@ where
     }
 }
 
-/// deserialize an optional Ipv6Addr where None is represented as
-/// an empty string
-///
-/// # Errors
-///
-/// returns an error if the value can not be interpreted as a null or String
-/// or if parsing it to an [std::net::Ipv6Addr] fails
-pub fn deserialize_empty_string_or_ipv6_address<'de, D>(
-    deserializer: D,
-) -> Result<Option<std::net::Ipv6Addr>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    let s: Option<String> = Option::deserialize(deserializer)?;
-
-    if let Some(s) = s {
-        if s.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(s.parse().map_err(serde::de::Error::custom)?))
-        }
-    } else {
-        Ok(None)
-    }
-}
-
 /// deserialize an optional String where None is represented as
 /// an empty string
 ///
@@ -96,6 +70,31 @@ where
             Ok(None)
         } else {
             Ok(Some(s))
+        }
+    } else {
+        Ok(None)
+    }
+}
+
+/// deserialize an optional value with a FromStr implementation where None is represented as
+/// an empty string
+///
+/// # Errors
+///
+/// returns an error if the value can not be interpreted as null or a String
+pub fn deserialize_empty_string_or_parse<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: std::str::FromStr,
+    T::Err: std::fmt::Display,
+{
+    let s: Option<String> = Option::deserialize(deserializer)?;
+
+    if let Some(s) = s {
+        if s.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(s.parse().map_err(serde::de::Error::custom)?))
         }
     } else {
         Ok(None)

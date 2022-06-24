@@ -5,12 +5,17 @@ use serde::Deserialize;
 use crate::{
     enums::{IcingaAcknowledgementType, IcingaHostOrServiceState, IcingaStateType},
     serde::{
-        deserialize_empty_string_or_string, deserialize_icinga_timestamp,
-        deserialize_optional_icinga_timestamp, deserialize_optional_seconds_as_duration,
+        deserialize_empty_string_or_parse, deserialize_empty_string_or_string,
+        deserialize_icinga_timestamp, deserialize_optional_icinga_timestamp,
+        deserialize_optional_seconds_as_duration,
     },
 };
 
-use super::{check_result::IcingaCheckResult, custom_var_object::IcingaCustomVarObject};
+use super::{
+    check_command::IcingaCheckCommandName, check_result::IcingaCheckResult,
+    custom_var_object::IcingaCustomVarObject, endpoint::IcingaEndpointName,
+    event_command::IcingaEventCommandName, time_period::IcingaTimePeriodName,
+};
 
 /// shared attributes on any checkable object (host and service)
 #[derive(Debug, Deserialize)]
@@ -32,21 +37,21 @@ pub struct IcingaCheckable {
     /// the current check attempt number
     pub check_attempt: u64,
     /// the name of the check command
-    pub check_command: String,
+    pub check_command: IcingaCheckCommandName,
     /// the interval used for checks when the host/service is in a HARD state
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
     pub check_interval: Option<time::Duration>,
     /// name of a time period when this host/service is checked
-    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
-    pub check_period: Option<String>,
+    #[serde(deserialize_with = "deserialize_empty_string_or_parse")]
+    pub check_period: Option<IcingaTimePeriodName>,
     /// check timeout
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
     pub check_timeout: Option<time::Duration>,
     /// the endpoint the command is executed on
-    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
-    pub command_endpoint: Option<String>,
+    #[serde(deserialize_with = "deserialize_empty_string_or_parse")]
+    pub command_endpoint: Option<IcingaEndpointName>,
     /// number of active downtimes on the host/service
     pub downtime_depth: u64,
     /// whether active checks are enabled
@@ -62,8 +67,8 @@ pub struct IcingaCheckable {
     /// whether performance data processing is enabled
     pub enable_perfdata: bool,
     /// the name of an event command that should be executed every time the host/service state changes or the host/service is in a SOFT state
-    #[serde(deserialize_with = "deserialize_empty_string_or_string")]
-    pub event_command: Option<String>,
+    #[serde(deserialize_with = "deserialize_empty_string_or_parse")]
+    pub event_command: Option<IcingaEventCommandName>,
     /// contains the state of execute-command executions
     pub executions: Option<()>,
     /// whether the host/service is flapping between states

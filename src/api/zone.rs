@@ -3,6 +3,10 @@ use serde::Deserialize;
 
 use super::IcingaJoinType;
 
+/// a zone name
+#[derive(Debug, Deserialize, derive_more::FromStr)]
+pub struct IcingaZoneName(pub String);
+
 /// possible joins parameter values for zones
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaZoneJoinTypes {

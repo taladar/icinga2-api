@@ -3,10 +3,13 @@
 use serde::Deserialize;
 
 use crate::enums::IcingaHostOrServiceState;
+use crate::serde::deserialize_empty_string_or_parse;
 
 use super::custom_var_object::IcingaCustomVarObject;
+use super::host::IcingaHostName;
 use super::joins::IcingaJoinResult;
 use super::metadata::IcingaMetadata;
+use super::service::IcingaServiceName;
 use super::{
     host::IcingaHostAttributes, service::IcingaServiceAttributes, IcingaJoinType, IcingaObjectType,
 };
@@ -21,13 +24,15 @@ pub struct IcingaDependencyAttributes {
     #[serde(flatten)]
     pub custom_var: IcingaCustomVarObject,
     /// the child host name
-    pub child_host_name: String,
+    pub child_host_name: IcingaHostName,
     /// the child service name
-    pub child_service_name: String,
+    #[serde(deserialize_with = "deserialize_empty_string_or_parse")]
+    pub child_service_name: Option<IcingaServiceName>,
     /// the parent host name
-    pub parent_host_name: String,
+    pub parent_host_name: IcingaHostName,
     /// the parent service name
-    pub parent_service_name: String,
+    #[serde(deserialize_with = "deserialize_empty_string_or_parse")]
+    pub parent_service_name: Option<IcingaServiceName>,
     /// whether checks are disabled by this dependency
     pub disable_checks: bool,
     /// whether notifications are disabled by this dependency

@@ -21,9 +21,9 @@ pub enum IcingaStateType {
 #[repr(u8)]
 pub enum HAMode {
     /// run a check once
-    Once,
+    HARunOnce,
     /// run a check everywhere
-    Everywhere,
+    HARunEverywhere,
 }
 
 /// HostState and ServiceState

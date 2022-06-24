@@ -8,10 +8,15 @@ use crate::{enums::IcingaObjectType, serde::deserialize_optional_icinga_timestam
 use super::{
     check_command::IcingaCheckCommandAttributes,
     checkable::IcingaCheckable,
-    host::IcingaHostAttributes,
+    host::{IcingaHostAttributes, IcingaHostName},
     joins::{IcingaJoinResult, IcingaJoinType},
     metadata::IcingaMetadata,
+    service_group::IcingaServiceGroupName,
 };
+
+/// a service name
+#[derive(Debug, Deserialize, derive_more::FromStr)]
+pub struct IcingaServiceName(pub String);
 
 /// service state
 #[derive(Debug, Deserialize_repr)]
@@ -62,9 +67,9 @@ pub struct IcingaServiceAttributes {
     /// a short description of the service
     pub display_name: String,
     /// a list of groups the service belongs to
-    pub groups: Vec<String>,
+    pub groups: Vec<IcingaServiceGroupName>,
     /// the hostname for this service
-    pub host_name: String,
+    pub host_name: IcingaHostName,
     /// the previous hard state
     pub last_hard_state: IcingaServiceState,
     /// the previous state

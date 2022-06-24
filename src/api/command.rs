@@ -68,10 +68,16 @@ pub struct IcingaCommandArgumentDescription {
     pub value: Option<String>,
     /// name of an argument to set
     pub key: Option<String>,
+    /// should the key be skipped
+    pub skip_key: Option<bool>,
     /// should the key be repeated
     pub repeat_key: Option<bool>,
     /// condition when to set it
     pub set_if: Option<IcingaArgumentCondition>,
     /// is this argument required
     pub required: Option<bool>,
+    /// determines the order in which the arguments are used
+    pub order: Option<u64>,
+    /// separator for multiple values
+    pub separator: Option<String>,
 }

@@ -6,6 +6,10 @@ use super::command::IcingaCommand;
 use super::metadata::IcingaMetadata;
 use super::IcingaObjectType;
 
+/// a check command name
+#[derive(Debug, Deserialize, derive_more::FromStr)]
+pub struct IcingaCheckCommandName(pub String);
+
 /// a check command (e.g. in a join)
 #[derive(Debug, Deserialize)]
 pub struct IcingaCheckCommandAttributes {

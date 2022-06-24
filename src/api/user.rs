@@ -3,6 +3,10 @@ use serde::Deserialize;
 
 use super::IcingaJoinType;
 
+/// a user name
+#[derive(Debug, Deserialize, derive_more::FromStr)]
+pub struct IcingaUserName(pub String);
+
 /// possible joins parameter values for users
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaUserJoinTypes {

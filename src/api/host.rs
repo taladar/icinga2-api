@@ -5,14 +5,19 @@ use serde_repr::Deserialize_repr;
 
 use crate::{
     enums::IcingaObjectType,
-    serde::{deserialize_empty_string_or_ipv6_address, deserialize_optional_icinga_timestamp},
+    serde::{deserialize_empty_string_or_parse, deserialize_optional_icinga_timestamp},
 };
 
 use super::{
     checkable::IcingaCheckable,
+    host_group::IcingaHostGroupName,
     joins::{IcingaJoinResult, IcingaJoinType},
     metadata::IcingaMetadata,
 };
+
+/// a host name
+#[derive(Debug, Deserialize, derive_more::FromStr)]
+pub struct IcingaHostName(pub String);
 
 /// host state
 #[derive(Debug, Deserialize_repr)]
@@ -51,12 +56,12 @@ pub struct IcingaHostAttributes {
     /// host Ipv4 address
     pub address: std::net::Ipv4Addr,
     /// optional host Ipv6 address
-    #[serde(deserialize_with = "deserialize_empty_string_or_ipv6_address")]
+    #[serde(deserialize_with = "deserialize_empty_string_or_parse")]
     pub address6: Option<std::net::Ipv6Addr>,
     /// a short description of the host
     pub display_name: String,
     /// a list of groups the host belongs to
-    pub groups: Vec<String>,
+    pub groups: Vec<IcingaHostGroupName>,
     /// the previous hard state
     pub last_hard_state: IcingaHostState,
     /// the previous state

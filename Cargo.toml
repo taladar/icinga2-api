@@ -41,6 +41,9 @@ version = "0.1.7"
 [dependencies.serde_repr]
 version = "0.1.8"
 
+[dependencies.derive_more]
+version = "0.99.17"
+
 [dependencies.toml]
 version = "0.5.9"
 
