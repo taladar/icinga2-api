@@ -35,7 +35,4 @@ pub enum Error {
     /// could not parse URL fragment
     #[error("could not parse URL fragment: {0}")]
     CouldNotParseUrlFragment(url::ParseError),
-    /// error writing filter expression
-    #[error("error writing filter expression: {0}")]
-    WritingFilterExpression(std::fmt::Error),
 }

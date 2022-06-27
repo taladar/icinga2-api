@@ -1,7 +1,7 @@
 //! Icinga2 host
 
-use serde::Deserialize;
-use serde_repr::Deserialize_repr;
+use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::{
     enums::IcingaObjectType,
@@ -20,7 +20,7 @@ use super::{
 pub struct IcingaHostName(pub String);
 
 /// host state
-#[derive(Debug, Deserialize_repr)]
+#[derive(Debug, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum IcingaHostState {
     /// host is up
@@ -32,7 +32,7 @@ pub enum IcingaHostState {
 }
 
 /// host state deserialization helper by name
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[repr(u8)]
 #[serde(remote = "IcingaHostState")]
 pub enum IcingaHostStateByName {
@@ -130,8 +130,14 @@ pub struct IcingaHostJoins {
 
 #[cfg(test)]
 mod test {
-    use crate::api::{joins::IcingaJoins, metadata::IcingaMetadataType, Icinga2};
-    use std::error::Error;
+    use crate::{
+        api::{
+            filter::IcingaFilter, host::IcingaHostState, joins::IcingaJoins,
+            metadata::IcingaMetadataType, Icinga2,
+        },
+        enums::IcingaObjectType,
+    };
+    use std::{collections::BTreeMap, error::Error};
     use tracing_test::traced_test;
 
     #[traced_test]
@@ -144,6 +150,29 @@ mod test {
         icinga2.hosts(
             IcingaJoins::AllJoins,
             &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
+            None,
+        )?;
+        Ok(())
+    }
+
+    #[traced_test]
+    #[test]
+    fn test_hosts_filtered() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv()?;
+        let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
+            "ICINGA_TEST_INSTANCE_CONFIG",
+        )?))?;
+        icinga2.hosts(
+            IcingaJoins::NoJoins,
+            &[],
+            Some(IcingaFilter {
+                object_type: IcingaObjectType::Host,
+                filter: "host.state == filter_state".to_string(),
+                filter_vars: BTreeMap::from([(
+                    "filter_state".to_string(),
+                    serde_json::to_value(IcingaHostState::Up)?,
+                )]),
+            }),
         )?;
         Ok(())
     }

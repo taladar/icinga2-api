@@ -120,6 +120,7 @@ mod test {
         icinga2.dependencies(
             IcingaJoins::AllJoins,
             &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
+            None,
         )?;
         Ok(())
     }

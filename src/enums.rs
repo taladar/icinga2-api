@@ -1,6 +1,6 @@
 //! Various small enums
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 
 use crate::api::host::{IcingaHostState, IcingaHostStateByName};
@@ -37,7 +37,7 @@ pub enum IcingaHostOrServiceState {
 }
 
 /// the type of icinga object we are dealing with
-#[derive(Debug, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IcingaObjectType {
     /// an icinga monitored host
     Host,

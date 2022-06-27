@@ -150,7 +150,9 @@ pub struct IcingaServiceJoins {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::api::{joins::IcingaJoins, metadata::IcingaMetadataType, Icinga2};
+    use crate::api::{
+        filter::IcingaFilter, joins::IcingaJoins, metadata::IcingaMetadataType, Icinga2,
+    };
     use std::{collections::BTreeMap, error::Error};
     use tracing_test::traced_test;
 
@@ -164,6 +166,7 @@ mod test {
         icinga2.services(
             IcingaJoins::AllJoins,
             &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
+            None,
         )?;
         Ok(())
     }
@@ -183,6 +186,26 @@ mod test {
                 partial,
             },
             &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
+            None,
+        )?;
+        Ok(())
+    }
+
+    #[traced_test]
+    #[test]
+    fn test_services_filtered() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv()?;
+        let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
+            "ICINGA_TEST_INSTANCE_CONFIG",
+        )?))?;
+        icinga2.services(
+            IcingaJoins::NoJoins,
+            &[],
+            Some(IcingaFilter {
+                object_type: IcingaObjectType::Service,
+                filter: "service.state == ServiceUnknown && service.vars.serviceSeverity == filter_severity".to_string(),
+                filter_vars: BTreeMap::from([("filter_severity".to_string(), serde_json::json!("imminent"))]),
+            }),
         )?;
         Ok(())
     }

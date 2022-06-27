@@ -10,6 +10,7 @@ use self::{
     check_command::IcingaCheckCommand,
     dependency::{IcingaDependency, IcingaDependencyJoinTypes},
     event_command::IcingaEventCommand,
+    filter::IcingaFilter,
     host::{IcingaHost, IcingaHostJoinTypes},
     host_group::IcingaHostGroup,
     joins::{IcingaJoinType, IcingaJoins},
@@ -264,18 +265,26 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    ///
+    /// # Panics
+    ///
+    /// this panics if the object_type field in the filter is not IcingaObjectType::Host
     pub fn hosts(
         &self,
         joins: IcingaJoins<IcingaHostJoinTypes>,
         meta: &[IcingaMetadataType],
+        filter: Option<IcingaFilter>,
     ) -> Result<Vec<IcingaHost>, crate::error::Error> {
+        if let Some(filter) = &filter {
+            assert_eq!(filter.object_type, IcingaObjectType::Host);
+        }
         let mut url = self
             .url
             .join("v1/objects/hosts")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         self.handle_joins_and_meta(&mut url, &joins, meta)?;
         let ResultsWrapper { results } =
-            self.rest::<(), ResultsWrapper<IcingaHost>>(http::Method::GET, url, None)?;
+            self.rest::<IcingaFilter, ResultsWrapper<IcingaHost>>(http::Method::GET, url, filter)?;
         Ok(results)
     }
 
@@ -284,18 +293,29 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    ///
+    /// # Panics
+    ///
+    /// this panics if the object_type field in the filter is not IcingaObjectType::Service
     pub fn services(
         &self,
         joins: IcingaJoins<IcingaServiceJoinTypes>,
         meta: &[IcingaMetadataType],
+        filter: Option<IcingaFilter>,
     ) -> Result<Vec<IcingaService>, crate::error::Error> {
+        if let Some(filter) = &filter {
+            assert_eq!(filter.object_type, IcingaObjectType::Service);
+        }
         let mut url = self
             .url
             .join("v1/objects/services")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         self.handle_joins_and_meta(&mut url, &joins, meta)?;
-        let ResultsWrapper { results } =
-            self.rest::<(), ResultsWrapper<IcingaService>>(http::Method::GET, url, None)?;
+        let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<IcingaService>>(
+            http::Method::GET,
+            url,
+            filter,
+        )?;
         Ok(results)
     }
 
@@ -304,10 +324,18 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    ///
+    /// # Panics
+    ///
+    /// this panics if the object_type field in the filter is not IcingaObjectType::CheckCommand
     pub fn check_commands(
         &self,
         meta: &[IcingaMetadataType],
+        filter: Option<IcingaFilter>,
     ) -> Result<Vec<IcingaCheckCommand>, crate::error::Error> {
+        if let Some(filter) = &filter {
+            assert_eq!(filter.object_type, IcingaObjectType::CheckCommand);
+        }
         let mut url = self
             .url
             .join("v1/objects/checkcommands")
@@ -317,8 +345,12 @@ impl Icinga2 {
                 url.query_pairs_mut().append_pair("meta", &v.to_string());
             }
         }
-        let ResultsWrapper { results } =
-            self.rest::<(), ResultsWrapper<IcingaCheckCommand>>(http::Method::GET, url, None)?;
+        let ResultsWrapper { results } = self
+            .rest::<IcingaFilter, ResultsWrapper<IcingaCheckCommand>>(
+                http::Method::GET,
+                url,
+                filter,
+            )?;
         Ok(results)
     }
 
@@ -327,10 +359,18 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    ///
+    /// # Panics
+    ///
+    /// this panics if the object_type field in the filter is not IcingaObjectType::NotificationCommand
     pub fn notification_commands(
         &self,
         meta: &[IcingaMetadataType],
+        filter: Option<IcingaFilter>,
     ) -> Result<Vec<IcingaNotificationCommand>, crate::error::Error> {
+        if let Some(filter) = &filter {
+            assert_eq!(filter.object_type, IcingaObjectType::NotificationCommand);
+        }
         let mut url = self
             .url
             .join("v1/objects/notificationcommands")
@@ -341,7 +381,11 @@ impl Icinga2 {
             }
         }
         let ResultsWrapper { results } = self
-            .rest::<(), ResultsWrapper<IcingaNotificationCommand>>(http::Method::GET, url, None)?;
+            .rest::<IcingaFilter, ResultsWrapper<IcingaNotificationCommand>>(
+                http::Method::GET,
+                url,
+                filter,
+            )?;
         Ok(results)
     }
 
@@ -350,10 +394,18 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    ///
+    /// # Panics
+    ///
+    /// this panics if the object_type field in the filter is not IcingaObjectType::EventCommand
     pub fn event_commands(
         &self,
         meta: &[IcingaMetadataType],
+        filter: Option<IcingaFilter>,
     ) -> Result<Vec<IcingaEventCommand>, crate::error::Error> {
+        if let Some(filter) = &filter {
+            assert_eq!(filter.object_type, IcingaObjectType::EventCommand);
+        }
         let mut url = self
             .url
             .join("v1/objects/eventcommands")
@@ -363,8 +415,12 @@ impl Icinga2 {
                 url.query_pairs_mut().append_pair("meta", &v.to_string());
             }
         }
-        let ResultsWrapper { results } =
-            self.rest::<(), ResultsWrapper<IcingaEventCommand>>(http::Method::GET, url, None)?;
+        let ResultsWrapper { results } = self
+            .rest::<IcingaFilter, ResultsWrapper<IcingaEventCommand>>(
+                http::Method::GET,
+                url,
+                filter,
+            )?;
         Ok(results)
     }
 
@@ -373,10 +429,18 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    ///
+    /// # Panics
+    ///
+    /// this panics if the object_type field in the filter is not IcingaObjectType::HostGroup
     pub fn host_groups(
         &self,
         meta: &[IcingaMetadataType],
+        filter: Option<IcingaFilter>,
     ) -> Result<Vec<IcingaHostGroup>, crate::error::Error> {
+        if let Some(filter) = &filter {
+            assert_eq!(filter.object_type, IcingaObjectType::HostGroup);
+        }
         let mut url = self
             .url
             .join("v1/objects/hostgroups")
@@ -386,8 +450,12 @@ impl Icinga2 {
                 url.query_pairs_mut().append_pair("meta", &v.to_string());
             }
         }
-        let ResultsWrapper { results } =
-            self.rest::<(), ResultsWrapper<IcingaHostGroup>>(http::Method::GET, url, None)?;
+        let ResultsWrapper { results } = self
+            .rest::<IcingaFilter, ResultsWrapper<IcingaHostGroup>>(
+                http::Method::GET,
+                url,
+                filter,
+            )?;
         Ok(results)
     }
 
@@ -396,10 +464,18 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    ///
+    /// # Panics
+    ///
+    /// this panics if the object_type field in the filter is not IcingaObjectType::ServiceGroup
     pub fn service_groups(
         &self,
         meta: &[IcingaMetadataType],
+        filter: Option<IcingaFilter>,
     ) -> Result<Vec<IcingaServiceGroup>, crate::error::Error> {
+        if let Some(filter) = &filter {
+            assert_eq!(filter.object_type, IcingaObjectType::ServiceGroup);
+        }
         let mut url = self
             .url
             .join("v1/objects/servicegroups")
@@ -409,8 +485,12 @@ impl Icinga2 {
                 url.query_pairs_mut().append_pair("meta", &v.to_string());
             }
         }
-        let ResultsWrapper { results } =
-            self.rest::<(), ResultsWrapper<IcingaServiceGroup>>(http::Method::GET, url, None)?;
+        let ResultsWrapper { results } = self
+            .rest::<IcingaFilter, ResultsWrapper<IcingaServiceGroup>>(
+                http::Method::GET,
+                url,
+                filter,
+            )?;
         Ok(results)
     }
 
@@ -419,10 +499,18 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    ///
+    /// # Panics
+    ///
+    /// this panics if the object_type field in the filter is not IcingaObjectType::UserGroup
     pub fn user_groups(
         &self,
         meta: &[IcingaMetadataType],
+        filter: Option<IcingaFilter>,
     ) -> Result<Vec<IcingaUserGroup>, crate::error::Error> {
+        if let Some(filter) = &filter {
+            assert_eq!(filter.object_type, IcingaObjectType::UserGroup);
+        }
         let mut url = self
             .url
             .join("v1/objects/usergroups")
@@ -432,8 +520,12 @@ impl Icinga2 {
                 url.query_pairs_mut().append_pair("meta", &v.to_string());
             }
         }
-        let ResultsWrapper { results } =
-            self.rest::<(), ResultsWrapper<IcingaUserGroup>>(http::Method::GET, url, None)?;
+        let ResultsWrapper { results } = self
+            .rest::<IcingaFilter, ResultsWrapper<IcingaUserGroup>>(
+                http::Method::GET,
+                url,
+                filter,
+            )?;
         Ok(results)
     }
 
@@ -442,18 +534,30 @@ impl Icinga2 {
     /// # Errors
     ///
     /// fails if the icinga2 API could not be reached, won't accept our authentication information or if the response can not be decoded
+    ///
+    /// # Panics
+    ///
+    /// this panics if the object_type field in the filter is not IcingaObjectType::Dependency
     pub fn dependencies(
         &self,
         joins: IcingaJoins<IcingaDependencyJoinTypes>,
         meta: &[IcingaMetadataType],
+        filter: Option<IcingaFilter>,
     ) -> Result<Vec<IcingaDependency>, crate::error::Error> {
+        if let Some(filter) = &filter {
+            assert_eq!(filter.object_type, IcingaObjectType::Dependency);
+        }
         let mut url = self
             .url
             .join("v1/objects/dependencies")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         self.handle_joins_and_meta(&mut url, &joins, meta)?;
-        let ResultsWrapper { results } =
-            self.rest::<(), ResultsWrapper<IcingaDependency>>(http::Method::GET, url, None)?;
+        let ResultsWrapper { results } = self
+            .rest::<IcingaFilter, ResultsWrapper<IcingaDependency>>(
+                http::Method::GET,
+                url,
+                filter,
+            )?;
         Ok(results)
     }
 }
