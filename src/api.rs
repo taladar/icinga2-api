@@ -52,6 +52,9 @@ pub mod joins;
 pub mod metadata;
 pub mod performance_data;
 
+// filter language
+pub mod filter;
+
 /// the runtime object for an Icinga2 instance
 #[derive(Debug)]
 pub struct Icinga2 {
@@ -487,55 +490,3 @@ pub struct IcingaFunction {
     #[serde(rename = "type")]
     pub object_type: IcingaObjectType,
 }
-
-// TODO: filters https://icinga.com/docs/icinga-2/latest/doc/12-icinga2-api/#advanced-filters (operations, functions,.. below are just a selection of the most immediately interesting ones)
-// * what are the semantics of a variable that does not exist (e.g. typo, field access to custom variables)
-// * what are the semantics of a type mismatch (e.g. you apply string functions to a custom variable or field that is an array)
-// * boolean literals
-// * numeric literals (floating point numbers and integers are one type in icinga)
-// * string literals (do filters support multi-line string literals?)
-// * enum literals (service and host state and state type in particular)
-// * duration literals
-// * null literal
-// * dictionary literals
-// * array literals
-// * operators ( https://icinga.com/docs/icinga-2/latest/doc/17-language-reference/#operators )
-// ** () grouping
-// ** function call
-// ** element access (can we somehow get validation of field names here? Would require us to know the type of a variable but there is only a handful of those, could not be for all fields though since some are runtime, e.g. custom variables)
-// ** logical not
-// ** unary minus
-// ** multiplication
-// ** division
-// ** remainder
-// ** add numbers/durations
-// ** concatenate string
-// ** subtract numbers/durations
-// ** equality
-// ** inequality
-// ** logical and
-// ** logical or
-// ** element in array
-// ** element not in array
-// ** less than, greater than, less than or equal, greater than or equal for numbers, durations (and strings?)
-// * variables provided by the filter (varies by object type we query, some types of variables appear under different names for different queries)
-// * functions ( https://icinga.com/docs/icinga-2/latest/doc/18-library-reference/ )
-// ** match
-// ** regex
-// ** intersection
-// ** union
-// ** range
-// ** get_time
-// ** Math.min
-// ** Math.max
-// ** Array.all
-// ** Array.any
-// ** Array.contains
-// ** Dictionary.contains
-// ** Dictionary.keys
-// ** Dictionary.values
-// ** String.contains
-// ** String.split
-// ** String.trim
-// ** String.lower
-// ** String.upper
