@@ -1,8 +1,8 @@
 //! structs related to the query metadata parameter
 //! and the result of queries including metadata
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-use super::config_object::IcingaSourceLocation;
+use super::common::{source_location::IcingaSourceLocation, object::IcingaObject};
 
 /// possible meta parameter values
 #[derive(Debug)]
@@ -23,10 +23,23 @@ impl std::fmt::Display for IcingaMetadataType {
 }
 
 /// metadata
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaMetadata {
     /// which other icinga objects use this object
-    pub used_by: Option<Vec<super::IcingaObject>>,
+    pub used_by: Option<Vec<IcingaObject>>,
     /// where in the config file this object is defined
     pub location: Option<IcingaSourceLocation>,
+}
+
+/// shared code for all handlers that have a meta parameter
+pub(crate) fn add_meta_to_url(
+    url: &mut url::Url,
+    meta: &[IcingaMetadataType],
+) -> Result<(), crate::error::Error> {
+    if !meta.is_empty() {
+        for v in meta {
+            url.query_pairs_mut().append_pair("meta", &v.to_string());
+        }
+    }
+    Ok(())
 }

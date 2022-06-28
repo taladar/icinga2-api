@@ -1,13 +1,9 @@
 //! Icinga2 check result as it appears in various query results
 use serde::Deserialize;
 
-use crate::enums::{IcingaObjectType, IcingaStateType};
+use crate::{serde::{deserialize_icinga_timestamp, deserialize_optional_seconds_as_duration}, types::enums::{service_state::IcingaServiceState, state_type::IcingaStateType, object_type::IcingaObjectType}};
 
-use super::{
-    command::IcingaCommandLine, performance_data::IcingaPerformanceData,
-    service::IcingaServiceState,
-};
-use crate::serde::{deserialize_icinga_timestamp, deserialize_optional_seconds_as_duration};
+use super::performance_data::IcingaPerformanceData;
 
 /// variables in check result (seem to be very static)
 #[derive(Debug, Deserialize)]

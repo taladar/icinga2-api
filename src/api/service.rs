@@ -14,47 +14,6 @@ use super::{
     service_group::IcingaServiceGroupName,
 };
 
-/// a service name
-#[derive(Debug, Deserialize, derive_more::FromStr)]
-pub struct IcingaServiceName(pub String);
-
-/// service state
-#[derive(Debug, Deserialize_repr)]
-#[repr(u8)]
-pub enum IcingaServiceState {
-    /// service is OK
-    Ok = 0,
-    /// service is WARNING
-    Warning = 1,
-    /// service is CRITICAL
-    Critical = 2,
-    /// service is UNKNOWN
-    Unknown = 3,
-    /// service is UNREACHABLE
-    Unreachable = 4,
-    /// service is PENDING
-    Pending = 99,
-}
-
-/// service state helper to deserialize by name
-#[derive(Debug, Deserialize)]
-#[repr(u8)]
-#[serde(remote = "IcingaServiceState")]
-pub enum IcingaServiceStateByName {
-    /// service is OK
-    Ok = 0,
-    /// service is WARNING
-    Warning = 1,
-    /// service is CRITICAL
-    Critical = 2,
-    /// service is UNKNOWN
-    Unknown = 3,
-    /// service is UNREACHABLE
-    Unreachable = 4,
-    /// service is PENDING
-    Pending = 99,
-}
-
 /// attributes on an [IcingaService]
 #[derive(Debug, Deserialize)]
 pub struct IcingaServiceAttributes {
@@ -104,47 +63,6 @@ pub struct IcingaService {
     /// type of icinga object, should always be Host for this
     #[serde(rename = "type")]
     pub object_type: IcingaObjectType,
-}
-
-/// possible joins parameter values for services
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum IcingaServiceJoinTypes {
-    /// the host the service is on
-    Host,
-    /// the check command object for the service
-    CheckCommand,
-    /// the check period object for the service
-    CheckPeriod,
-    /// the event command object for the service
-    EventCommand,
-    /// the command endpoint object for the service
-    CommandEndpoint,
-}
-
-impl IcingaJoinType for IcingaServiceJoinTypes {}
-
-impl std::fmt::Display for IcingaServiceJoinTypes {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            IcingaServiceJoinTypes::Host => write!(f, "host"),
-            IcingaServiceJoinTypes::CheckCommand => write!(f, "check_command"),
-            IcingaServiceJoinTypes::CheckPeriod => write!(f, "check_period"),
-            IcingaServiceJoinTypes::EventCommand => write!(f, "event_command"),
-            IcingaServiceJoinTypes::CommandEndpoint => write!(f, "command_endpoint"),
-        }
-    }
-}
-
-/// return type joins for services
-#[derive(Debug, Deserialize)]
-pub struct IcingaServiceJoins {
-    /// the host this service is on
-    pub host: Option<IcingaJoinResult<IcingaHostAttributes>>,
-    /// the check command object for the service
-    pub check_command: Option<IcingaJoinResult<IcingaCheckCommandAttributes>>,
-    //pub check_period: Option<IcingaJoinResult<IcingaPeriodAttributes>>,
-    //pub event_command: Option<IcingaJoinResult<IcingaEventCommand>>,
-    //pub command_endpoint: Option<IcingaJoinResult<IcingaCommandEndpoint>>,
 }
 
 #[cfg(test)]

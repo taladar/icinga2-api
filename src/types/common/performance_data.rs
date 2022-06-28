@@ -1,11 +1,11 @@
 //! Icinga2 performance data as it appears in check results
-use serde::Deserialize;
 
-use super::IcingaObjectType;
-use crate::serde::deserialize_empty_string_or_string;
+use serde::{Serialize, Deserialize};
+
+use crate::{serde::deserialize_empty_string_or_string, types::enums::object_type::IcingaObjectType};
 
 /// represents performance data
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaPerformanceData {
     /// performance data in string format

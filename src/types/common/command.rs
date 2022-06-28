@@ -1,13 +1,17 @@
-//! Icinga2 structs representing various command related concepts
+//! Command - shared fields in the various command types
+//!
+//! [Definition in Icinga Source](https://github.com/Icinga/icinga2/blob/master/lib/icinga/command.ti)
+
 use std::collections::BTreeMap;
 
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
-use super::{custom_var_object::IcingaCustomVarObject, IcingaFunction};
 use crate::serde::deserialize_optional_seconds_as_duration;
 
+use super::{custom_var_object::IcingaCustomVarObject, function::IcingaFunction};
+
 /// shared fields in the various command objects
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaCommand {
     /// shared config object and custom variable fields
     #[serde(flatten)]
@@ -45,6 +49,8 @@ pub enum IcingaCommandLine {
     /// a single string for the whole command, will likely need a shell to do
     /// word splitting
     Shell(String),
+    /// an icinga function
+    Function(IcingaFunction),
     /// individual command and parameters
     Exec(Vec<IcingaCommandParameter>),
 }
@@ -65,6 +71,8 @@ pub enum IcingaArgumentCondition {
 pub enum IcingaCommandArgumentDescription {
     /// a simple string with the argument(s)
     String(String),
+    /// an icinga function
+    Function(IcingaFunction),
     /// a full description with details
     FullDescription {
         /// the description of this argument

@@ -15,35 +15,6 @@ use super::{
     metadata::IcingaMetadata,
 };
 
-/// a host name
-#[derive(Debug, Deserialize, derive_more::FromStr)]
-pub struct IcingaHostName(pub String);
-
-/// host state
-#[derive(Debug, Serialize_repr, Deserialize_repr)]
-#[repr(u8)]
-pub enum IcingaHostState {
-    /// host is up
-    Up = 0,
-    /// host is down
-    Down = 1,
-    /// host is unreachable
-    Unreachable = 2,
-}
-
-/// host state deserialization helper by name
-#[derive(Debug, Serialize, Deserialize)]
-#[repr(u8)]
-#[serde(remote = "IcingaHostState")]
-pub enum IcingaHostStateByName {
-    /// host is up
-    Up = 0,
-    /// host is down
-    Down = 1,
-    /// host is unreachable
-    Unreachable = 2,
-}
-
 /// attributes on an [IcingaHost]
 #[derive(Debug, Deserialize)]
 pub struct IcingaHostAttributes {
@@ -92,41 +63,6 @@ pub struct IcingaHost {
     pub object_type: IcingaObjectType,
 }
 
-/// possible joins parameter values for hosts
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum IcingaHostJoinTypes {
-    /// the check command object for the host
-    CheckCommand,
-    /// the check period object for the host
-    CheckPeriod,
-    /// the event command object for the host
-    EventCommand,
-    /// the command endpoint object for the host
-    CommandEndpoint,
-}
-
-impl IcingaJoinType for IcingaHostJoinTypes {}
-
-impl std::fmt::Display for IcingaHostJoinTypes {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            IcingaHostJoinTypes::CheckCommand => write!(f, "check_command"),
-            IcingaHostJoinTypes::CheckPeriod => write!(f, "check_period"),
-            IcingaHostJoinTypes::EventCommand => write!(f, "event_command"),
-            IcingaHostJoinTypes::CommandEndpoint => write!(f, "command_endpoint"),
-        }
-    }
-}
-
-/// return type joins for hosts
-#[derive(Debug, Deserialize)]
-pub struct IcingaHostJoins {
-    /// the check command object for the host
-    pub check_command: Option<IcingaJoinResult<super::check_command::IcingaCheckCommand>>,
-    //pub check_period: Option<IcingaJoinResult<IcingaPeriodAttributes>>,
-    //pub event_command: Option<IcingaJoinResult<IcingaEventCommand>>,
-    //pub command_endpoint: Option<IcingaJoinResult<IcingaCommandEndpoint>>,
-}
 
 #[cfg(test)]
 mod test {

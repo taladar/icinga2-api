@@ -8,10 +8,6 @@ use crate::serde::deserialize_empty_string_or_string;
 use super::custom_var_object::IcingaCustomVarObject;
 use super::metadata::IcingaMetadata;
 
-/// a service group name
-#[derive(Debug, Deserialize, derive_more::FromStr)]
-pub struct IcingaServiceGroupName(pub String);
-
 /// a service group
 #[derive(Debug, Deserialize)]
 pub struct IcingaServiceGroupAttributes {

@@ -1,24 +1,18 @@
-//! shared fields in various icinga2 api objects
+//! Checkable - shared attributes between hosts and services
+//!
+//! [Definition in Icinga Source Code](https://github.com/Icinga/icinga2/blob/master/lib/icinga/checkable.ti)
 
+use serde::Serialize;
 use serde::Deserialize;
 
-use crate::{
-    enums::{IcingaAcknowledgementType, IcingaHostOrServiceState, IcingaStateType},
-    serde::{
+use crate::serde::{
         deserialize_empty_string_or_parse, deserialize_empty_string_or_string,
         deserialize_icinga_timestamp, deserialize_optional_icinga_timestamp,
         deserialize_optional_seconds_as_duration,
-    },
-};
-
-use super::{
-    check_command::IcingaCheckCommandName, check_result::IcingaCheckResult,
-    custom_var_object::IcingaCustomVarObject, endpoint::IcingaEndpointName,
-    event_command::IcingaEventCommandName, time_period::IcingaTimePeriodName,
 };
 
 /// shared attributes on any checkable object (host and service)
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaCheckable {
     /// shared config object and custom variable fields
     #[serde(flatten)]

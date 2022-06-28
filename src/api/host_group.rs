@@ -8,10 +8,6 @@ use crate::serde::deserialize_empty_string_or_string;
 use super::custom_var_object::IcingaCustomVarObject;
 use super::metadata::IcingaMetadata;
 
-/// a host group name
-#[derive(Debug, Deserialize, derive_more::FromStr)]
-pub struct IcingaHostGroupName(pub String);
-
 /// a host group
 #[derive(Debug, Deserialize)]
 pub struct IcingaHostGroupAttributes {

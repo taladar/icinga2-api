@@ -6,10 +6,6 @@ use crate::enums::IcingaObjectType;
 
 use super::{custom_var_object::IcingaCustomVarObject, metadata::IcingaMetadata};
 
-/// a user group name
-#[derive(Debug, Deserialize, derive_more::FromStr)]
-pub struct IcingaUserGroupName(pub String);
-
 /// a user group
 #[derive(Debug, Deserialize)]
 pub struct IcingaUserGroupAttributes {

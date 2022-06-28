@@ -1,40 +1,19 @@
-//! Icinga2 Config object with shared fields
+//! ConfigObject
+//!
+//! [Definition in Icinga Source](https://github.com/Icinga/icinga2/blob/master/lib/base/configobject.ti)
 
 use std::collections::BTreeMap;
-use std::path::PathBuf;
 
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
-use crate::enums::HAMode;
+use crate::types::enums::ha_mode::HAMode;
+
+use super::source_location::IcingaSourceLocation;
+
 use crate::serde::{deserialize_empty_string_or_parse, deserialize_optional_icinga_timestamp};
 
-use super::zone::IcingaZoneName;
-
-/// an icinga source location inside the icinga config files
-#[derive(Debug, Deserialize)]
-pub struct IcingaSourceLocation {
-    /// path of the config file
-    pub path: PathBuf,
-    /// start line
-    pub first_line: u64,
-    /// start column
-    pub first_column: u64,
-    /// end line
-    pub last_line: u64,
-    /// end column
-    pub last_column: u64,
-}
-
-/// a package name
-#[derive(Debug, Deserialize, derive_more::FromStr)]
-pub struct IcingaPackageName(pub String);
-
-/// a template name
-#[derive(Debug, Deserialize, derive_more::FromStr)]
-pub struct IcingaTemplateName(pub String);
-
 /// shared fields in the various objects defined in the configuration
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaConfigObject {
     /// full object name
     #[serde(rename = "__name")]

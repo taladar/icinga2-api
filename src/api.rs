@@ -4,7 +4,7 @@ use std::{path::Path, str::from_utf8};
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use crate::enums::IcingaObjectType;
+use crate::{enums::IcingaObjectType, types::{query::{QueryResultObject, ResultsWrapper}, metadata::add_meta_to_url}};
 
 use self::{
     check_command::IcingaCheckCommand,
@@ -42,19 +42,6 @@ pub mod zone;
 // runtime objects
 pub mod comment;
 pub mod downtime;
-
-// other types
-pub mod check_result;
-pub mod checkable;
-pub mod command;
-pub mod config_object;
-pub mod custom_var_object;
-pub mod joins;
-pub mod metadata;
-pub mod performance_data;
-
-// filter language
-pub mod filter;
 
 /// the runtime object for an Icinga2 instance
 #[derive(Debug)]
@@ -301,7 +288,7 @@ impl Icinga2 {
         &self,
         meta: &[IcingaMetadataType],
         filter: Option<IcingaFilter>,
-    ) -> Result<Vec<IcingaCheckCommand>, crate::error::Error> {
+    ) -> Result<Vec<QueryResultObject<IcingaCheckCommand>>, crate::error::Error> {
         if let Some(filter) = &filter {
             assert_eq!(filter.object_type, IcingaObjectType::CheckCommand);
         }
@@ -332,7 +319,7 @@ impl Icinga2 {
         &self,
         meta: &[IcingaMetadataType],
         filter: Option<IcingaFilter>,
-    ) -> Result<Vec<IcingaNotificationCommand>, crate::error::Error> {
+    ) -> Result<Vec<QueryResultObject<IcingaNotificationCommand>>, crate::error::Error> {
         if let Some(filter) = &filter {
             assert_eq!(filter.object_type, IcingaObjectType::NotificationCommand);
         }
@@ -363,7 +350,7 @@ impl Icinga2 {
         &self,
         meta: &[IcingaMetadataType],
         filter: Option<IcingaFilter>,
-    ) -> Result<Vec<IcingaEventCommand>, crate::error::Error> {
+    ) -> Result<Vec<QueryResultObject<IcingaEventCommand>>, crate::error::Error> {
         if let Some(filter) = &filter {
             assert_eq!(filter.object_type, IcingaObjectType::EventCommand);
         }
@@ -506,75 +493,4 @@ impl Icinga2 {
             )?;
         Ok(results)
     }
-}
-
-/// shared code for all the handlers that have a joins parameters
-pub(crate) fn add_joins_to_url<JT: IcingaJoinType + Ord + std::fmt::Display>(
-    url: &mut url::Url,
-    joins: &IcingaJoins<JT>,
-) -> Result<(), crate::error::Error> {
-    match joins {
-        IcingaJoins::NoJoins => (),
-        IcingaJoins::AllJoins => {
-            url.query_pairs_mut().append_pair("all_joins", "1");
-        }
-        IcingaJoins::SpecificJoins { full, partial } => {
-            for j in full {
-                url.query_pairs_mut().append_pair("joins", &j.to_string());
-            }
-            for (j, fields) in partial {
-                for f in fields {
-                    url.query_pairs_mut()
-                        .append_pair("joins", &format!("{}.{}", &j.to_string(), &f));
-                }
-            }
-        }
-    }
-    Ok(())
-}
-
-/// shared code for all handlers that have a meta parameter
-pub(crate) fn add_meta_to_url(
-    url: &mut url::Url,
-    meta: &[IcingaMetadataType],
-) -> Result<(), crate::error::Error> {
-    if !meta.is_empty() {
-        for v in meta {
-            url.query_pairs_mut().append_pair("meta", &v.to_string());
-        }
-    }
-    Ok(())
-}
-
-/// wrapper for Json results
-#[derive(Debug, Deserialize)]
-pub struct ResultsWrapper<T> {
-    /// the internal field in the Icinga2 object containing all an array of the actual results
-    results: Vec<T>,
-}
-
-/// the most minimal description of an icinga object
-#[derive(Debug, Deserialize)]
-pub struct IcingaObject {
-    /// the name of the object
-    pub name: String,
-    /// the type of the object
-    #[serde(rename = "type")]
-    pub object_type: IcingaObjectType,
-}
-
-/// the description of an icinga function
-#[derive(Debug, Deserialize)]
-pub struct IcingaFunction {
-    /// the arguments
-    pub arguments: Vec<String>,
-    /// is this deprecated
-    pub deprecated: bool,
-    /// the name
-    pub name: String,
-    /// is this command side-effect free
-    pub side_effect_free: bool,
-    /// type of object
-    #[serde(rename = "type")]
-    pub object_type: IcingaObjectType,
 }

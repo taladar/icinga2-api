@@ -2,12 +2,12 @@
 
 use std::collections::BTreeMap;
 
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
-use crate::enums::IcingaObjectType;
+use super::enums::object_type::IcingaObjectType;
 
 /// represents an icinga filter as passed to icinga to limit queries and operations
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaFilter {
     /// the object type we want to filter
     #[serde(rename = "type")]
