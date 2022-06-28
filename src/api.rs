@@ -227,39 +227,6 @@ impl Icinga2 {
         }
     }
 
-    /// shared code for all the handlers that have meta and joins parameters
-    /// to add those to the URL
-    fn handle_joins_and_meta<JT: IcingaJoinType + Ord + std::fmt::Display>(
-        &self,
-        url: &mut url::Url,
-        joins: &IcingaJoins<JT>,
-        meta: &[IcingaMetadataType],
-    ) -> Result<(), crate::error::Error> {
-        match joins {
-            IcingaJoins::NoJoins => (),
-            IcingaJoins::AllJoins => {
-                url.query_pairs_mut().append_pair("all_joins", "1");
-            }
-            IcingaJoins::SpecificJoins { full, partial } => {
-                for j in full {
-                    url.query_pairs_mut().append_pair("joins", &j.to_string());
-                }
-                for (j, fields) in partial {
-                    for f in fields {
-                        url.query_pairs_mut()
-                            .append_pair("joins", &format!("{}.{}", &j.to_string(), &f));
-                    }
-                }
-            }
-        }
-        if !meta.is_empty() {
-            for v in meta {
-                url.query_pairs_mut().append_pair("meta", &v.to_string());
-            }
-        }
-        Ok(())
-    }
-
     /// retrieve Icinga hosts
     ///
     /// # Errors
@@ -282,7 +249,8 @@ impl Icinga2 {
             .url
             .join("v1/objects/hosts")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
-        self.handle_joins_and_meta(&mut url, &joins, meta)?;
+        add_joins_to_url(&mut url, &joins)?;
+        add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } =
             self.rest::<IcingaFilter, ResultsWrapper<IcingaHost>>(http::Method::GET, url, filter)?;
         Ok(results)
@@ -310,7 +278,8 @@ impl Icinga2 {
             .url
             .join("v1/objects/services")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
-        self.handle_joins_and_meta(&mut url, &joins, meta)?;
+        add_joins_to_url(&mut url, &joins)?;
+        add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<IcingaService>>(
             http::Method::GET,
             url,
@@ -340,11 +309,7 @@ impl Icinga2 {
             .url
             .join("v1/objects/checkcommands")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
-        if !meta.is_empty() {
-            for v in meta {
-                url.query_pairs_mut().append_pair("meta", &v.to_string());
-            }
-        }
+        add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self
             .rest::<IcingaFilter, ResultsWrapper<IcingaCheckCommand>>(
                 http::Method::GET,
@@ -375,11 +340,7 @@ impl Icinga2 {
             .url
             .join("v1/objects/notificationcommands")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
-        if !meta.is_empty() {
-            for v in meta {
-                url.query_pairs_mut().append_pair("meta", &v.to_string());
-            }
-        }
+        add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self
             .rest::<IcingaFilter, ResultsWrapper<IcingaNotificationCommand>>(
                 http::Method::GET,
@@ -410,11 +371,7 @@ impl Icinga2 {
             .url
             .join("v1/objects/eventcommands")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
-        if !meta.is_empty() {
-            for v in meta {
-                url.query_pairs_mut().append_pair("meta", &v.to_string());
-            }
-        }
+        add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self
             .rest::<IcingaFilter, ResultsWrapper<IcingaEventCommand>>(
                 http::Method::GET,
@@ -445,11 +402,7 @@ impl Icinga2 {
             .url
             .join("v1/objects/hostgroups")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
-        if !meta.is_empty() {
-            for v in meta {
-                url.query_pairs_mut().append_pair("meta", &v.to_string());
-            }
-        }
+        add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self
             .rest::<IcingaFilter, ResultsWrapper<IcingaHostGroup>>(
                 http::Method::GET,
@@ -480,11 +433,7 @@ impl Icinga2 {
             .url
             .join("v1/objects/servicegroups")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
-        if !meta.is_empty() {
-            for v in meta {
-                url.query_pairs_mut().append_pair("meta", &v.to_string());
-            }
-        }
+        add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self
             .rest::<IcingaFilter, ResultsWrapper<IcingaServiceGroup>>(
                 http::Method::GET,
@@ -515,11 +464,7 @@ impl Icinga2 {
             .url
             .join("v1/objects/usergroups")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
-        if !meta.is_empty() {
-            for v in meta {
-                url.query_pairs_mut().append_pair("meta", &v.to_string());
-            }
-        }
+        add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self
             .rest::<IcingaFilter, ResultsWrapper<IcingaUserGroup>>(
                 http::Method::GET,
@@ -551,7 +496,8 @@ impl Icinga2 {
             .url
             .join("v1/objects/dependencies")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
-        self.handle_joins_and_meta(&mut url, &joins, meta)?;
+        add_joins_to_url(&mut url, &joins)?;
+        add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self
             .rest::<IcingaFilter, ResultsWrapper<IcingaDependency>>(
                 http::Method::GET,
@@ -560,6 +506,44 @@ impl Icinga2 {
             )?;
         Ok(results)
     }
+}
+
+/// shared code for all the handlers that have a joins parameters
+pub(crate) fn add_joins_to_url<JT: IcingaJoinType + Ord + std::fmt::Display>(
+    url: &mut url::Url,
+    joins: &IcingaJoins<JT>,
+) -> Result<(), crate::error::Error> {
+    match joins {
+        IcingaJoins::NoJoins => (),
+        IcingaJoins::AllJoins => {
+            url.query_pairs_mut().append_pair("all_joins", "1");
+        }
+        IcingaJoins::SpecificJoins { full, partial } => {
+            for j in full {
+                url.query_pairs_mut().append_pair("joins", &j.to_string());
+            }
+            for (j, fields) in partial {
+                for f in fields {
+                    url.query_pairs_mut()
+                        .append_pair("joins", &format!("{}.{}", &j.to_string(), &f));
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+/// shared code for all handlers that have a meta parameter
+pub(crate) fn add_meta_to_url(
+    url: &mut url::Url,
+    meta: &[IcingaMetadataType],
+) -> Result<(), crate::error::Error> {
+    if !meta.is_empty() {
+        for v in meta {
+            url.query_pairs_mut().append_pair("meta", &v.to_string());
+        }
+    }
+    Ok(())
 }
 
 /// wrapper for Json results
