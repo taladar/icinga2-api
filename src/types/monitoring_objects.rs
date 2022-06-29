@@ -4,7 +4,6 @@
 
 pub mod api_user;
 pub mod check_command;
-pub mod check_command_arguments;
 pub mod dependency;
 pub mod endpoint;
 pub mod event_command;
