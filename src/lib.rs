@@ -32,7 +32,6 @@
 
 pub mod api;
 pub mod config;
-pub mod enums;
 pub mod error;
 pub mod serde;
 pub mod types;
