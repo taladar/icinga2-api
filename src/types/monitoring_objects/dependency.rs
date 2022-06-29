@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::serde::{
     deserialize_empty_string_or_parse, serialize_none_as_empty_string_or_to_string,
 };
+use crate::types::names::IcingaTimePeriodName;
 use crate::types::{
     common::custom_var_object::IcingaCustomVarObject,
     enums::{host_or_service_state::IcingaHostOrServiceState, object_type::IcingaObjectType},
@@ -46,8 +47,8 @@ pub struct IcingaDependency {
     pub disable_notifications: bool,
     /// whether this dependency ignores soft states
     pub ignore_soft_states: bool,
-    /// the name of the period when this dependency is active
-    pub period: String,
+    /// the name of the time period when this dependency is active
+    pub period: Option<IcingaTimePeriodName>,
     /// states when this dependency is enabled
     pub states: Vec<IcingaHostOrServiceState>,
 }

@@ -23,7 +23,7 @@ pub struct IcingaTimePeriod {
     /// shared config object and custom variable fields
     #[serde(flatten)]
     pub custom_var: IcingaCustomVarObject,
-    /// a short description of the host group
+    /// a short description of the time period
     pub display_name: String,
     /// the time ranges in this time period
     pub ranges: BTreeMap<String, String>,

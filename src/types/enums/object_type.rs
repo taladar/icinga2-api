@@ -39,4 +39,12 @@ pub enum IcingaObjectType {
     TimePeriod,
     /// a zone
     Zone,
+    /// a user
+    User,
+    /// a scheduled downtime
+    ScheduledDowntime,
+    /// a downtime
+    Downtime,
+    /// an api user
+    ApiUser,
 }

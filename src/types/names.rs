@@ -6,6 +6,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, derive_more::Display, derive_more::FromStr)]
 pub struct IcingaCheckCommandName(pub String);
 
+/// a downtime name
+#[derive(Debug, Serialize, Deserialize, derive_more::Display, derive_more::FromStr)]
+pub struct IcingaDowntimeName(pub String);
+
 /// an endpoint name
 #[derive(Debug, Serialize, Deserialize, derive_more::Display, derive_more::FromStr)]
 pub struct IcingaEndpointName(pub String);
@@ -29,6 +33,10 @@ pub struct IcingaNotificationCommandName(pub String);
 /// a package name
 #[derive(Debug, Serialize, Deserialize, derive_more::Display, derive_more::FromStr)]
 pub struct IcingaPackageName(pub String);
+
+/// a scheduled downtime name
+#[derive(Debug, Serialize, Deserialize, derive_more::Display, derive_more::FromStr)]
+pub struct IcingaScheduledDowntimeName(pub String);
 
 /// a service name
 #[derive(Debug, Serialize, Deserialize, derive_more::Display, derive_more::FromStr)]
