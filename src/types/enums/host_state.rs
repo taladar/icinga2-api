@@ -2,8 +2,8 @@
 //!
 //! [Definition in Icinga Source](https://github.com/Icinga/icinga2/blob/master/lib/icinga/checkresult.ti)
 
-use serde::{Serialize, Deserialize};
-use serde_repr::{Serialize_repr, Deserialize_repr};
+use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// host state
 #[derive(Debug, Serialize_repr, Deserialize_repr)]

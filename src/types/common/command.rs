@@ -4,9 +4,11 @@
 
 use std::collections::BTreeMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::serde::deserialize_optional_seconds_as_duration;
+use crate::serde::{
+    deserialize_optional_seconds_as_duration, serialize_optional_duration_as_seconds,
+};
 
 use super::{custom_var_object::IcingaCustomVarObject, function::IcingaFunction};
 
@@ -26,12 +28,15 @@ pub struct IcingaCommand {
     pub execute: IcingaFunction,
     /// command timeout
     #[serde(default)]
-    #[serde(deserialize_with = "deserialize_optional_seconds_as_duration")]
+    #[serde(
+        serialize_with = "serialize_optional_duration_as_seconds",
+        deserialize_with = "deserialize_optional_seconds_as_duration"
+    )]
     pub timeout: Option<time::Duration>,
 }
 
 /// command parameters (scalar values basically)
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaCommandParameter {
     /// string value
@@ -43,7 +48,7 @@ pub enum IcingaCommandParameter {
 }
 
 /// command to execute with parameters
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaCommandLine {
     /// a single string for the whole command, will likely need a shell to do
@@ -56,7 +61,7 @@ pub enum IcingaCommandLine {
 }
 
 /// set_if condition in command argument description
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaArgumentCondition {
     /// a string condition, most likely a boolean variable
@@ -66,7 +71,7 @@ pub enum IcingaArgumentCondition {
 }
 
 /// the description of a single
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaCommandArgumentDescription {
     /// a simple string with the argument(s)

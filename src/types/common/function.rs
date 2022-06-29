@@ -2,7 +2,7 @@
 //!
 //! [Definition in Icinga Source](https://github.com/Icinga/icinga2/blob/master/lib/base/function.ti)
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::types::enums::object_type::IcingaObjectType;
 

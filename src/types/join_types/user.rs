@@ -1,8 +1,10 @@
 //! User
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::{IcingaJoinType, IcingaJoinResult};
+use crate::types::monitoring_objects::time_period::IcingaTimePeriod;
+
+use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for users
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]

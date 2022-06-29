@@ -1,6 +1,6 @@
 //! HostState or ServiceState by name
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use super::host_state::IcingaHostState;
 use super::host_state::IcingaHostStateByName;

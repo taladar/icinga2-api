@@ -1,8 +1,13 @@
 //! Host
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::{IcingaJoinType, IcingaJoinResult};
+use crate::types::monitoring_objects::{
+    check_command::IcingaCheckCommand, endpoint::IcingaEndpoint, event_command::IcingaEventCommand,
+    time_period::IcingaTimePeriod,
+};
+
+use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for hosts
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -35,7 +40,10 @@ impl std::fmt::Display for IcingaHostJoinTypes {
 pub struct IcingaHostJoins {
     /// the check command object for the host
     pub check_command: Option<IcingaJoinResult<IcingaCheckCommand>>,
+    /// the check period when the host is expected to be up
     pub check_period: Option<IcingaJoinResult<IcingaTimePeriod>>,
+    /// the event command that is called when the host state changes
     pub event_command: Option<IcingaJoinResult<IcingaEventCommand>>,
-    pub command_endpoint: Option<IcingaJoinResult<IcingaCommandEndpoint>>,
+    /// the endpoint for the commands
+    pub command_endpoint: Option<IcingaJoinResult<IcingaEndpoint>>,
 }

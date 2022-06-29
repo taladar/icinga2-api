@@ -4,12 +4,12 @@
 
 use std::collections::BTreeMap;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use super::config_object::IcingaConfigObject;
 
 /// shared fields in the various objects supporting custom variables
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaCustomVarObject {
     /// custom variables specific to this object
     pub vars: Option<BTreeMap<String, serde_json::Value>>,

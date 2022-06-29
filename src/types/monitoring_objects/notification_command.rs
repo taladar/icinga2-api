@@ -4,9 +4,9 @@
 //!
 //! [Definition in Icinga Source](https://github.com/Icinga/icinga2/blob/master/lib/icinga/notificationcommand.ti)
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::types::{enums::object_type::IcingaObjectType, common::command::IcingaCommand};
+use crate::types::{common::command::IcingaCommand, enums::object_type::IcingaObjectType};
 
 /// a notification command
 #[derive(Debug, Serialize, Deserialize)]

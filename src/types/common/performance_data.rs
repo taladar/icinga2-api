@@ -1,8 +1,9 @@
 //! Icinga2 performance data as it appears in check results
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{serde::deserialize_empty_string_or_string, types::enums::object_type::IcingaObjectType};
+use crate::serde::{deserialize_empty_string_or_string, serialize_none_as_empty_string};
+use crate::types::enums::object_type::IcingaObjectType;
 
 /// represents performance data
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,14 +25,20 @@ pub enum IcingaPerformanceData {
         /// the warning value
         warn: Option<f64>,
         /// the label for the type of values
-        #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+        #[serde(
+            serialize_with = "serialize_none_as_empty_string",
+            deserialize_with = "deserialize_empty_string_or_string"
+        )]
         label: Option<String>,
         /// the minimum value
         min: Option<f64>,
         /// the maximum value
         max: Option<f64>,
         /// the unit for the type of values
-        #[serde(deserialize_with = "deserialize_empty_string_or_string")]
+        #[serde(
+            serialize_with = "serialize_none_as_empty_string",
+            deserialize_with = "deserialize_empty_string_or_string"
+        )]
         unit: Option<String>,
     },
 }

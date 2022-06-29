@@ -4,13 +4,19 @@
 
 use std::collections::BTreeMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::types::enums::ha_mode::HAMode;
+use crate::types::{
+    enums::ha_mode::HAMode,
+    names::{IcingaPackageName, IcingaTemplateName, IcingaZoneName},
+};
 
 use super::source_location::IcingaSourceLocation;
 
-use crate::serde::{deserialize_empty_string_or_parse, deserialize_optional_icinga_timestamp};
+use crate::serde::{
+    deserialize_empty_string_or_parse, deserialize_optional_icinga_timestamp,
+    serialize_none_as_empty_string_or_to_string, serialize_optional_icinga_timestamp,
+};
 
 /// shared fields in the various objects defined in the configuration
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,9 +42,15 @@ pub struct IcingaConfigObject {
     /// templates imported on object compilation
     pub templates: Vec<IcingaTemplateName>,
     /// timestamp when the object was created or modified. syncred throughout cluster nodes
-    #[serde(deserialize_with = "deserialize_optional_icinga_timestamp")]
+    #[serde(
+        serialize_with = "serialize_optional_icinga_timestamp",
+        deserialize_with = "deserialize_optional_icinga_timestamp"
+    )]
     pub version: Option<time::OffsetDateTime>,
     /// the zone this object is a member of
-    #[serde(deserialize_with = "deserialize_empty_string_or_parse")]
+    #[serde(
+        serialize_with = "serialize_none_as_empty_string_or_to_string",
+        deserialize_with = "deserialize_empty_string_or_parse"
+    )]
     pub zone: Option<IcingaZoneName>,
 }

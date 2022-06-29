@@ -4,9 +4,9 @@
 //!
 //! [Definition in Icinga Source](https://github.com/Icinga/icinga2/blob/master/lib/icinga/checkcommand.ti)
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::types::{enums::object_type::IcingaObjectType, common::command::IcingaCommand};
+use crate::types::{common::command::IcingaCommand, enums::object_type::IcingaObjectType};
 
 /// a check command (e.g. in a join)
 #[derive(Debug, Serialize, Deserialize)]

@@ -1,14 +1,14 @@
 //! Types related to query API calls
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::{metadata::IcingaMetadata, enums::object_type::IcingaObjectType};
+use super::{enums::object_type::IcingaObjectType, metadata::IcingaMetadata};
 
 /// wrapper for Json results
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ResultsWrapper<T> {
     /// the internal field in the Icinga2 object containing all an array of the actual results
-    results: Vec<T>,
+    pub results: Vec<T>,
 }
 
 /// the result of an icinga query to a type with joins

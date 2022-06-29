@@ -2,23 +2,26 @@
 
 use std::{path::Path, str::from_utf8};
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{enums::IcingaObjectType, types::{query::{QueryResultObject, ResultsWrapper}, metadata::add_meta_to_url}};
-
-use self::{
-    check_command::IcingaCheckCommand,
-    dependency::{IcingaDependency, IcingaDependencyJoinTypes},
-    event_command::IcingaEventCommand,
+use crate::types::{
+    enums::object_type::IcingaObjectType,
     filter::IcingaFilter,
-    host::{IcingaHost, IcingaHostJoinTypes},
-    host_group::IcingaHostGroup,
-    joins::{IcingaJoinType, IcingaJoins},
-    metadata::IcingaMetadataType,
-    notification_command::IcingaNotificationCommand,
-    service::{IcingaService, IcingaServiceJoinTypes},
-    service_group::IcingaServiceGroup,
-    user_group::IcingaUserGroup,
+    join_types::{
+        add_joins_to_url,
+        dependency::{IcingaDependencyJoinTypes, IcingaDependencyJoins},
+        host::{IcingaHostJoinTypes, IcingaHostJoins},
+        service::{IcingaServiceJoinTypes, IcingaServiceJoins},
+        IcingaJoins,
+    },
+    metadata::{add_meta_to_url, IcingaMetadataType},
+    monitoring_objects::{
+        check_command::IcingaCheckCommand, dependency::IcingaDependency,
+        event_command::IcingaEventCommand, host::IcingaHost, host_group::IcingaHostGroup,
+        notification_command::IcingaNotificationCommand, service::IcingaService,
+        service_group::IcingaServiceGroup, user_group::IcingaUserGroup,
+    },
+    query::{QueryResultObject, QueryResultObjectWithJoins, ResultsWrapper},
 };
 
 // monitoring objects
@@ -228,7 +231,8 @@ impl Icinga2 {
         joins: IcingaJoins<IcingaHostJoinTypes>,
         meta: &[IcingaMetadataType],
         filter: Option<IcingaFilter>,
-    ) -> Result<Vec<IcingaHost>, crate::error::Error> {
+    ) -> Result<Vec<QueryResultObjectWithJoins<IcingaHost, IcingaHostJoins>>, crate::error::Error>
+    {
         if let Some(filter) = &filter {
             assert_eq!(filter.object_type, IcingaObjectType::Host);
         }
@@ -238,8 +242,9 @@ impl Icinga2 {
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         add_joins_to_url(&mut url, &joins)?;
         add_meta_to_url(&mut url, meta)?;
-        let ResultsWrapper { results } =
-            self.rest::<IcingaFilter, ResultsWrapper<IcingaHost>>(http::Method::GET, url, filter)?;
+        let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<
+            QueryResultObjectWithJoins<IcingaHost, IcingaHostJoins>,
+        >>(http::Method::GET, url, filter)?;
         Ok(results)
     }
 
@@ -257,7 +262,10 @@ impl Icinga2 {
         joins: IcingaJoins<IcingaServiceJoinTypes>,
         meta: &[IcingaMetadataType],
         filter: Option<IcingaFilter>,
-    ) -> Result<Vec<IcingaService>, crate::error::Error> {
+    ) -> Result<
+        Vec<QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>>,
+        crate::error::Error,
+    > {
         if let Some(filter) = &filter {
             assert_eq!(filter.object_type, IcingaObjectType::Service);
         }
@@ -267,11 +275,9 @@ impl Icinga2 {
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         add_joins_to_url(&mut url, &joins)?;
         add_meta_to_url(&mut url, meta)?;
-        let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<IcingaService>>(
-            http::Method::GET,
-            url,
-            filter,
-        )?;
+        let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<
+            QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>,
+        >>(http::Method::GET, url, filter)?;
         Ok(results)
     }
 
@@ -297,12 +303,9 @@ impl Icinga2 {
             .join("v1/objects/checkcommands")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         add_meta_to_url(&mut url, meta)?;
-        let ResultsWrapper { results } = self
-            .rest::<IcingaFilter, ResultsWrapper<IcingaCheckCommand>>(
-                http::Method::GET,
-                url,
-                filter,
-            )?;
+        let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<
+            QueryResultObject<IcingaCheckCommand>,
+        >>(http::Method::GET, url, filter)?;
         Ok(results)
     }
 
@@ -328,12 +331,9 @@ impl Icinga2 {
             .join("v1/objects/notificationcommands")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         add_meta_to_url(&mut url, meta)?;
-        let ResultsWrapper { results } = self
-            .rest::<IcingaFilter, ResultsWrapper<IcingaNotificationCommand>>(
-                http::Method::GET,
-                url,
-                filter,
-            )?;
+        let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<
+            QueryResultObject<IcingaNotificationCommand>,
+        >>(http::Method::GET, url, filter)?;
         Ok(results)
     }
 
@@ -359,12 +359,9 @@ impl Icinga2 {
             .join("v1/objects/eventcommands")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         add_meta_to_url(&mut url, meta)?;
-        let ResultsWrapper { results } = self
-            .rest::<IcingaFilter, ResultsWrapper<IcingaEventCommand>>(
-                http::Method::GET,
-                url,
-                filter,
-            )?;
+        let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<
+            QueryResultObject<IcingaEventCommand>,
+        >>(http::Method::GET, url, filter)?;
         Ok(results)
     }
 
@@ -381,7 +378,7 @@ impl Icinga2 {
         &self,
         meta: &[IcingaMetadataType],
         filter: Option<IcingaFilter>,
-    ) -> Result<Vec<IcingaHostGroup>, crate::error::Error> {
+    ) -> Result<Vec<QueryResultObject<IcingaHostGroup>>, crate::error::Error> {
         if let Some(filter) = &filter {
             assert_eq!(filter.object_type, IcingaObjectType::HostGroup);
         }
@@ -391,7 +388,7 @@ impl Icinga2 {
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self
-            .rest::<IcingaFilter, ResultsWrapper<IcingaHostGroup>>(
+            .rest::<IcingaFilter, ResultsWrapper<QueryResultObject<IcingaHostGroup>>>(
                 http::Method::GET,
                 url,
                 filter,
@@ -412,7 +409,7 @@ impl Icinga2 {
         &self,
         meta: &[IcingaMetadataType],
         filter: Option<IcingaFilter>,
-    ) -> Result<Vec<IcingaServiceGroup>, crate::error::Error> {
+    ) -> Result<Vec<QueryResultObject<IcingaServiceGroup>>, crate::error::Error> {
         if let Some(filter) = &filter {
             assert_eq!(filter.object_type, IcingaObjectType::ServiceGroup);
         }
@@ -421,12 +418,9 @@ impl Icinga2 {
             .join("v1/objects/servicegroups")
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         add_meta_to_url(&mut url, meta)?;
-        let ResultsWrapper { results } = self
-            .rest::<IcingaFilter, ResultsWrapper<IcingaServiceGroup>>(
-                http::Method::GET,
-                url,
-                filter,
-            )?;
+        let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<
+            QueryResultObject<IcingaServiceGroup>,
+        >>(http::Method::GET, url, filter)?;
         Ok(results)
     }
 
@@ -443,7 +437,7 @@ impl Icinga2 {
         &self,
         meta: &[IcingaMetadataType],
         filter: Option<IcingaFilter>,
-    ) -> Result<Vec<IcingaUserGroup>, crate::error::Error> {
+    ) -> Result<Vec<QueryResultObject<IcingaUserGroup>>, crate::error::Error> {
         if let Some(filter) = &filter {
             assert_eq!(filter.object_type, IcingaObjectType::UserGroup);
         }
@@ -453,7 +447,7 @@ impl Icinga2 {
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         add_meta_to_url(&mut url, meta)?;
         let ResultsWrapper { results } = self
-            .rest::<IcingaFilter, ResultsWrapper<IcingaUserGroup>>(
+            .rest::<IcingaFilter, ResultsWrapper<QueryResultObject<IcingaUserGroup>>>(
                 http::Method::GET,
                 url,
                 filter,
@@ -475,7 +469,10 @@ impl Icinga2 {
         joins: IcingaJoins<IcingaDependencyJoinTypes>,
         meta: &[IcingaMetadataType],
         filter: Option<IcingaFilter>,
-    ) -> Result<Vec<IcingaDependency>, crate::error::Error> {
+    ) -> Result<
+        Vec<QueryResultObjectWithJoins<IcingaDependency, IcingaDependencyJoins>>,
+        crate::error::Error,
+    > {
         if let Some(filter) = &filter {
             assert_eq!(filter.object_type, IcingaObjectType::Dependency);
         }
@@ -485,12 +482,9 @@ impl Icinga2 {
             .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
         add_joins_to_url(&mut url, &joins)?;
         add_meta_to_url(&mut url, meta)?;
-        let ResultsWrapper { results } = self
-            .rest::<IcingaFilter, ResultsWrapper<IcingaDependency>>(
-                http::Method::GET,
-                url,
-                filter,
-            )?;
+        let ResultsWrapper { results } = self.rest::<IcingaFilter, ResultsWrapper<
+            QueryResultObjectWithJoins<IcingaDependency, IcingaDependencyJoins>,
+        >>(http::Method::GET, url, filter)?;
         Ok(results)
     }
 }

@@ -1,6 +1,6 @@
 //! Minimal Icinga Object (type + name)
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::types::enums::object_type::IcingaObjectType;
 

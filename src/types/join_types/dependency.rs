@@ -1,8 +1,12 @@
 //! Dependency
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::{IcingaJoinType, IcingaJoinResult};
+use crate::types::monitoring_objects::{
+    host::IcingaHost, service::IcingaService, time_period::IcingaTimePeriod,
+};
+
+use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for dependencies
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -44,5 +48,6 @@ pub struct IcingaDependencyJoins {
     pub parent_host: Option<IcingaJoinResult<IcingaHost>>,
     /// the parent service of the dependency
     pub parent_service: Option<IcingaJoinResult<IcingaService>>,
-    //pub period: Option<IcingaJoinResult<IcingaPeriodAttributes>>,
+    /// the time period for which this dependency applies
+    pub period: Option<IcingaJoinResult<IcingaTimePeriod>>,
 }

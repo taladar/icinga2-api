@@ -1,8 +1,10 @@
 //! Zone
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::IcingaJoinType;
+use crate::types::monitoring_objects::zone::IcingaZone;
+
+use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for zones
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -24,5 +26,6 @@ impl std::fmt::Display for IcingaZoneJoinTypes {
 /// return type joins for zones
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaZoneJoins {
+    /// the parent zone
     pub parent: Option<IcingaJoinResult<IcingaZone>>,
 }

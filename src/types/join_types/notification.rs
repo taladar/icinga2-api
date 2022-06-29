@@ -1,8 +1,13 @@
 //! Notification
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::{IcingaJoinType, IcingaJoinResult};
+use crate::types::monitoring_objects::{
+    host::IcingaHost, notification_command::IcingaNotificationCommand, service::IcingaService,
+    time_period::IcingaTimePeriod,
+};
+
+use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for notifications
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -37,7 +42,7 @@ pub struct IcingaNotificationJoins {
     pub host: Option<IcingaJoinResult<IcingaHost>>,
     /// the service this Notification is about
     pub service: Option<IcingaJoinResult<IcingaService>>,
-    ///// the notification command object for the notification
+    /// the notification command object for the notification
     pub command: Option<IcingaJoinResult<IcingaNotificationCommand>>,
     /// the time period when the notification is active
     pub period: Option<IcingaJoinResult<IcingaTimePeriod>>,

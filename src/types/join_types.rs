@@ -2,7 +2,7 @@
 
 use std::collections::BTreeMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub mod dependency;
 pub mod host;

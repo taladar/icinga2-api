@@ -2,7 +2,7 @@
 
 use std::collections::BTreeMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use super::enums::object_type::IcingaObjectType;
 

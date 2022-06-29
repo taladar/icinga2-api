@@ -1,6 +1,6 @@
 //! ObjectType
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// the type of icinga object we are dealing with
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -33,4 +33,10 @@ pub enum IcingaObjectType {
     ServiceGroup,
     /// a user group
     UserGroup,
+    /// an endpoint
+    Endpoint,
+    /// a time period
+    TimePeriod,
+    /// a zone
+    Zone,
 }

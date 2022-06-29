@@ -1,8 +1,13 @@
 //! Service
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::{IcingaJoinType, IcingaJoinResult};
+use crate::types::monitoring_objects::{
+    check_command::IcingaCheckCommand, endpoint::IcingaEndpoint, event_command::IcingaEventCommand,
+    host::IcingaHost, time_period::IcingaTimePeriod,
+};
+
+use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for services
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -45,5 +50,5 @@ pub struct IcingaServiceJoins {
     /// the event command run on state change
     pub event_command: Option<IcingaJoinResult<IcingaEventCommand>>,
     /// the command endpoint for the commands
-    pub command_endpoint: Option<IcingaJoinResult<IcingaCommandEndpoint>>,
+    pub command_endpoint: Option<IcingaJoinResult<IcingaEndpoint>>,
 }

@@ -2,7 +2,7 @@
 //!
 //! [Definition in Icinga Source](https://github.com/Icinga/icinga2/blob/master/lib/base/configobject.ti)
 
-use serde_repr::{Serialize_repr, Deserialize_repr};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// HA mode
 #[derive(Debug, Serialize_repr, Deserialize_repr)]

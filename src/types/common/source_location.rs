@@ -7,7 +7,7 @@
 
 use std::path::PathBuf;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// an icinga source location inside the icinga config files
 #[derive(Debug, Serialize, Deserialize)]
