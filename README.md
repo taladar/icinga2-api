@@ -41,7 +41,7 @@ Retrieving status data is not supported yet.
 
 Configuration management is not supported yet.
 
-Retrieving informati on configuration object types is not supported yet.
+Retrieving information on configuration object types is not supported yet.
 
 Querying config templates is not supported yet.
 
