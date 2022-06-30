@@ -2,6 +2,8 @@
 
 use thiserror::Error;
 
+use crate::types::enums::object_type::IcingaObjectType;
+
 /// Error type for icinga2_api
 #[derive(Debug, Error)]
 pub enum Error {
@@ -35,4 +37,10 @@ pub enum Error {
     /// could not parse URL fragment
     #[error("could not parse URL fragment: {0}")]
     CouldNotParseUrlFragment(url::ParseError),
+    /// the object type of a query filter did not match the query result object
+    #[error("filter object type expected {0} but was {1}")]
+    FilterObjectTypeMismatch(IcingaObjectType, IcingaObjectType),
+    /// uninitialized field in builder
+    #[error("uninitialized field in builder: {0}")]
+    UninitializedFieldInBuilder(#[from] derive_builder::UninitializedFieldError),
 }

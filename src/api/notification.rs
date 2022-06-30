@@ -1,1 +1,0 @@
-//! Icinga2 notifications

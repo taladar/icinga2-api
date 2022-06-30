@@ -15,7 +15,7 @@ pub mod zone;
 pub trait IcingaJoinType {}
 
 /// joins
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum IcingaJoins<'a, JT>
 where
     JT: IcingaJoinType + Ord + std::fmt::Display,

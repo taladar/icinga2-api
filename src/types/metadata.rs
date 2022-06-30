@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::common::{object::IcingaObject, source_location::IcingaSourceLocation};
 
 /// possible meta parameter values
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum IcingaMetadataType {
     /// includes information about the other icinga objects using each returned object
     UsedBy,

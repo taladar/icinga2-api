@@ -10,6 +10,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 #[repr(u8)]
 pub enum IcingaServiceState {
     /// service is OK
+    #[serde(rename = "OK")]
     Ok = 0,
     /// service is WARNING
     Warning = 1,
@@ -29,6 +30,7 @@ pub enum IcingaServiceState {
 #[serde(remote = "IcingaServiceState")]
 pub enum IcingaServiceStateByName {
     /// service is OK
+    #[serde(rename = "OK")]
     Ok = 0,
     /// service is WARNING
     Warning = 1,

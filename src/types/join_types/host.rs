@@ -10,7 +10,7 @@ use crate::types::monitoring_objects::{
 use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for hosts
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaHostJoinTypes {
     /// the check command object for the host
     CheckCommand,

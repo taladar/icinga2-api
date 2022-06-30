@@ -7,7 +7,7 @@ use crate::types::monitoring_objects::time_period::IcingaTimePeriod;
 use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for users
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaUserJoinTypes {
     /// the period object for which the user is valid (most likely something like shift or work hours)
     Period,

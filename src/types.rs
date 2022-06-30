@@ -11,4 +11,5 @@ pub mod metadata;
 pub mod monitoring_objects;
 pub mod names;
 pub mod query;
+pub mod rest;
 pub mod runtime_objects;

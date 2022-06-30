@@ -1,12 +1,27 @@
 //! Icinga2 services
+//!
+//! [Official Documentation](https://icinga.com/docs/icinga-2/latest/doc/09-object-types/#service)
+
+crate::types::query::query_with_joins!(
+    ListServices,
+    ListServicesBuilder,
+    monitoring_objects,
+    service,
+    IcingaService,
+    IcingaServiceJoinTypes,
+    IcingaServiceJoins,
+    IcingaObjectType::Service,
+    "v1/objects/services"
+);
 
 #[cfg(test)]
 mod test {
+    use super::*;
     use std::{collections::BTreeMap, error::Error};
     use tracing_test::traced_test;
 
     use crate::{
-        api::Icinga2,
+        api::blocking::Icinga2,
         types::{
             enums::object_type::IcingaObjectType,
             filter::IcingaFilter,
@@ -22,11 +37,12 @@ mod test {
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
-        icinga2.services(
-            IcingaJoins::AllJoins,
-            &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
-            None,
-        )?;
+        let api_endpoint = ListServices::builder()
+            .joins(IcingaJoins::AllJoins)
+            .meta([IcingaMetadataType::UsedBy, IcingaMetadataType::Location])
+            .build()?;
+        let _: ResultsWrapper<QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>> =
+            icinga2.rest(api_endpoint)?;
         Ok(())
     }
 
@@ -39,14 +55,15 @@ mod test {
         )?))?;
         let mut partial = BTreeMap::new();
         partial.insert(IcingaServiceJoinTypes::Host, vec!["name"]);
-        icinga2.services(
-            IcingaJoins::SpecificJoins {
+        let api_endpoint = ListServices::builder()
+            .joins(IcingaJoins::SpecificJoins {
                 full: vec![],
                 partial,
-            },
-            &[IcingaMetadataType::UsedBy, IcingaMetadataType::Location],
-            None,
-        )?;
+            })
+            .meta([IcingaMetadataType::UsedBy, IcingaMetadataType::Location])
+            .build()?;
+        let _: ResultsWrapper<QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>> =
+            icinga2.rest(api_endpoint)?;
         Ok(())
     }
 
@@ -57,15 +74,15 @@ mod test {
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
-        icinga2.services(
-            IcingaJoins::NoJoins,
-            &[],
-            Some(IcingaFilter {
+        let api_endpoint = ListServices::builder()
+            .filter(IcingaFilter {
                 object_type: IcingaObjectType::Service,
                 filter: "service.state == ServiceUnknown && service.vars.serviceSeverity == filter_severity".to_string(),
                 filter_vars: BTreeMap::from([("filter_severity".to_string(), serde_json::json!("imminent"))]),
-            }),
-        )?;
+            })
+            .build()?;
+        let _: ResultsWrapper<QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>> =
+            icinga2.rest(api_endpoint)?;
         Ok(())
     }
 }

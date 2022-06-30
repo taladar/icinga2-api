@@ -9,7 +9,7 @@ use crate::types::monitoring_objects::{
 use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for dependencies
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaDependencyJoinTypes {
     /// the child host of the dependency
     ChildHost,

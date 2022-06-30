@@ -12,9 +12,11 @@ use crate::serde::{
     deserialize_optional_icinga_timestamp, deserialize_optional_seconds_as_duration,
     serialize_optional_duration_as_seconds, serialize_optional_icinga_timestamp,
 };
+use crate::types::enums::notification_filter::IcingaNotificationFilter;
+use crate::types::enums::notification_type::IcingaNotificationType;
 use crate::types::{
     common::custom_var_object::IcingaCustomVarObject,
-    enums::{host_or_service_state::IcingaHostOrServiceState, object_type::IcingaObjectType},
+    enums::object_type::IcingaObjectType,
     names::{
         IcingaEndpointName, IcingaHostName, IcingaNotificationCommandName, IcingaServiceName,
         IcingaTimePeriodName, IcingaUserGroupName, IcingaUserName,
@@ -47,9 +49,9 @@ pub struct IcingaNotification {
     /// A dictionary containing begin and end attributes for the notification.
     pub times: Option<BTreeMap<String, serde_json::Value>>,
     /// A list of type filters when this notification should be triggered. By default everything is matched.
-    pub types: Option<Vec<IcingaObjectType>>,
+    pub types: Option<Vec<IcingaNotificationType>>,
     /// A list of state filters when this notification should be triggered. By default everything is matched. Note that the states filter is ignored for notifications of type Acknowledgement!
-    pub states: Option<Vec<IcingaHostOrServiceState>>,
+    pub states: Option<Vec<IcingaNotificationFilter>>,
     /// The name of the host this notification belongs to.
     pub host_name: IcingaHostName,
     /// The short name of the service this notification belongs to. If omitted, this notification object is treated as host notification.

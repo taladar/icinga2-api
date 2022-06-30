@@ -10,7 +10,7 @@ use crate::types::monitoring_objects::{
 use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for notifications
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaNotificationJoinTypes {
     /// the host the notification is about
     Host,
