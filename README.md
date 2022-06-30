@@ -4,7 +4,8 @@ Rust client for the Icinga2 API
 
 [Official Icinga2 API Docs](https://icinga.com/docs/icinga-2/latest/doc/12-icinga2-api/)
 
-Currently this only implements parts of the query API.
+Currently this only implements parts of the query API in both blocking and async
+versions
 
 Supported:
 

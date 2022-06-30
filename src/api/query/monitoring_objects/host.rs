@@ -22,6 +22,7 @@ mod test {
 
     use crate::{
         api::blocking::Icinga2,
+        api::r#async::Icinga2Async,
         types::{
             enums::{host_state::IcingaHostState, object_type::IcingaObjectType},
             filter::IcingaFilter,
@@ -64,6 +65,22 @@ mod test {
             })
             .build()?;
         let _: ResultsWrapper<QueryResultObject<IcingaHost>> = icinga2.rest(api_endpoint)?;
+        Ok(())
+    }
+
+    #[traced_test]
+    #[tokio::test]
+    async fn test_hosts_async() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv()?;
+        let icinga2 = Icinga2Async::from_config_file(std::path::Path::new(&std::env::var(
+            "ICINGA_TEST_INSTANCE_CONFIG",
+        )?))?;
+        let api_endpoint = ListHosts::builder()
+            .joins(IcingaJoins::AllJoins)
+            .meta([IcingaMetadataType::UsedBy, IcingaMetadataType::Location])
+            .build()?;
+        let _: ResultsWrapper<QueryResultObjectWithJoins<IcingaHost, IcingaHostJoins>> =
+            icinga2.rest(api_endpoint).await?;
         Ok(())
     }
 }
