@@ -4,6 +4,7 @@
 
 pub mod common;
 pub mod enums;
+pub mod event_stream;
 pub mod features;
 pub mod filter;
 pub mod join_types;
