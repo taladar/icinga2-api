@@ -17,9 +17,6 @@ Supported:
 * check commands
 * event commands
 * notification commands
-
-Not supported yet:
-
 * API users
 * endpoints
 * notifications
@@ -30,6 +27,9 @@ Not supported yet:
 
 * comments
 * downtimes
+
+None of the types listed under Features in the Icinga Documentation are supported
+at the moment.
 
 Creation, modification and deletion of config objects is not supported.
 
