@@ -104,7 +104,7 @@ macro_rules! query_with_joins {
                 if let Some(Some(filter)) = &self.filter {
                     if filter.object_type != expected {
                         Err(crate::error::Error::FilterObjectTypeMismatch(
-                            expected,
+                            vec![expected],
                             filter.object_type.to_owned(),
                         ))
                     } else {
@@ -240,7 +240,7 @@ macro_rules! query {
                 if let Some(Some(filter)) = &self.filter {
                     if filter.object_type != expected {
                         Err(crate::error::Error::FilterObjectTypeMismatch(
-                            expected,
+                            vec![expected],
                             filter.object_type.to_owned(),
                         ))
                     } else {

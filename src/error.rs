@@ -38,8 +38,8 @@ pub enum Error {
     #[error("could not parse URL fragment: {0}")]
     CouldNotParseUrlFragment(url::ParseError),
     /// the object type of a query filter did not match the query result object
-    #[error("filter object type expected {0} but was {1}")]
-    FilterObjectTypeMismatch(IcingaObjectType, IcingaObjectType),
+    #[error("filter object type expected one of {0:?} but was {1}")]
+    FilterObjectTypeMismatch(Vec<IcingaObjectType>, IcingaObjectType),
     /// uninitialized field in builder
     #[error("uninitialized field in builder: {0}")]
     UninitializedFieldInBuilder(#[from] derive_builder::UninitializedFieldError),

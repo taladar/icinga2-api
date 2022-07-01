@@ -36,7 +36,7 @@ pub struct IcingaCommand {
 }
 
 /// command parameters (scalar values basically)
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaCommandParameter {
     /// string value
@@ -48,7 +48,7 @@ pub enum IcingaCommandParameter {
 }
 
 /// command to execute with parameters
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaCommandLine {
     /// a single string for the whole command, will likely need a shell to do
