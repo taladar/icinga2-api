@@ -1,5 +1,6 @@
 //! Icinga API
 
+pub mod action;
 pub mod query;
 
 #[cfg(feature = "async")]
