@@ -21,8 +21,8 @@ mod test {
     use tracing_test::traced_test;
 
     use crate::{
+        api::async_client::Icinga2Async,
         api::blocking::Icinga2,
-        api::r#async::Icinga2Async,
         types::{
             enums::{host_state::IcingaHostState, object_type::IcingaObjectType},
             filter::IcingaFilter,

@@ -2,9 +2,20 @@
 
 use std::{path::Path, str::from_utf8};
 
+use futures::stream::TryStreamExt;
+use futures::Stream;
+use futures::StreamExt;
 use serde::{de::DeserializeOwned, Serialize};
+use tokio::io::AsyncBufReadExt;
+use tokio_stream::wrappers::LinesStream;
+use tokio_util::io::StreamReader;
 
-use crate::types::rest::{RestApiEndpoint, RestApiResponse};
+use crate::types::{
+    enums::event_stream_type::IcingaEventStreamType,
+    event_stream::IcingaEvent,
+    filter::IcingaFilter,
+    rest::{RestApiEndpoint, RestApiResponse},
+};
 
 /// the runtime object for an Icinga2 instance (blocking variant)
 #[derive(Debug)]
@@ -182,5 +193,112 @@ impl Icinga2Async {
                 }
             }
         }
+    }
+
+    /// Long-polling on an event stream
+    ///
+    /// # Errors
+    ///
+    /// this returns an error if encoding or the actual request fail
+    pub async fn event_stream(
+        &self,
+        types: &[IcingaEventStreamType],
+        queue: &str,
+        filter: Option<IcingaFilter>,
+    ) -> Result<impl Stream<Item = Result<IcingaEvent, std::io::Error>>, crate::error::Error> {
+        let method = http::Method::POST;
+        let mut url = self
+            .url
+            .join("v1/events")
+            .map_err(crate::error::Error::CouldNotParseUrlFragment)?;
+        for t in types {
+            url.query_pairs_mut().append_pair("types", &t.to_string());
+        }
+        url.query_pairs_mut().append_pair("queue", queue);
+        let request_body = filter;
+        let mut req = self.client.request(method.to_owned(), url.to_owned());
+        req = req.basic_auth(&self.username, Some(&self.password));
+        if let Some(request_body) = request_body {
+            tracing::trace!("Request body:\n{:#?}", request_body);
+            req = req.json(&request_body);
+        }
+        let result = req.send().await;
+        if let Err(ref e) = result {
+            tracing::error!(%url, %method, "Icinga2 send error: {:?}", e);
+        }
+        let result = result?;
+        let status = result.status();
+        if status.is_client_error() {
+            tracing::error!(%url, %method, "Icinga2 status error (client error): {:?}", status);
+        } else if status.is_server_error() {
+            tracing::error!(%url, %method, "Icinga2 status error (server error): {:?}", status);
+        }
+        let byte_chunk_stream = result
+            .bytes_stream()
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e));
+        let stream_reader = StreamReader::new(byte_chunk_stream);
+        let line_reader = LinesStream::new(stream_reader.lines());
+        let event_reader = line_reader.map(|l| match l {
+            Ok(l) => {
+                tracing::trace!("Icinga2 received raw event:\n{}", &l);
+                let jd = &mut serde_json::Deserializer::from_str(&l);
+                match serde_path_to_error::deserialize(jd) {
+                    Ok(event) => {
+                        tracing::trace!("Icinga2 received event:\n{:#?}", &event);
+                        Ok(event)
+                    }
+                    Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, e)),
+                }
+            }
+            Err(e) => Err(e),
+        });
+        Ok(event_reader)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::error::Error;
+    use tracing_test::traced_test;
+
+    #[traced_test]
+    #[tokio::test]
+    async fn test_event_stream_async() -> Result<(), Box<dyn Error>> {
+        dotenv::dotenv()?;
+        let icinga2 = Icinga2Async::from_config_file(std::path::Path::new(&std::env::var(
+            "ICINGA_TEST_INSTANCE_CONFIG",
+        )?))?;
+        let mut stream = icinga2
+            .event_stream(
+                &[
+                    IcingaEventStreamType::CheckResult,
+                    IcingaEventStreamType::StateChange,
+                    IcingaEventStreamType::Notification,
+                    IcingaEventStreamType::AcknowledgementSet,
+                    IcingaEventStreamType::AcknowledgementCleared,
+                    IcingaEventStreamType::CommentAdded,
+                    IcingaEventStreamType::CommentRemove,
+                    IcingaEventStreamType::DowntimeAdded,
+                    IcingaEventStreamType::DowntimeRemoved,
+                    IcingaEventStreamType::DowntimeStarted,
+                    IcingaEventStreamType::DowntimeTriggered,
+                    IcingaEventStreamType::ObjectCreated,
+                    IcingaEventStreamType::ObjectDeleted,
+                    IcingaEventStreamType::ObjectModified,
+                    IcingaEventStreamType::Flapping,
+                ],
+                "test",
+                None,
+            )
+            .await?;
+        for _ in 0..100 {
+            let event = stream.next().await;
+            tracing::trace!("Got event:\n{:#?}", event);
+            if let Some(event) = event {
+                assert!(event.is_ok());
+            }
+        }
+        Ok(())
     }
 }

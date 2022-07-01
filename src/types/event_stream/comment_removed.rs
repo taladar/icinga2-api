@@ -7,15 +7,11 @@
 use serde::{Deserialize, Serialize};
 
 use crate::serde::{deserialize_icinga_timestamp, serialize_icinga_timestamp};
-use crate::types::enums::event_stream_type::IcingaEventStreamType;
 use crate::types::runtime_objects::comment::IcingaComment;
 
 /// the CommentRemoved event type
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaEventCommentRemoved {
-    /// type of event
-    #[serde(rename = "type")]
-    pub event_type: IcingaEventStreamType,
     /// when the event happened
     #[serde(
         serialize_with = "serialize_icinga_timestamp",

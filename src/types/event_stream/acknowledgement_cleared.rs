@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::serde::{deserialize_icinga_timestamp, serialize_icinga_timestamp};
 use crate::types::enums::acknowledgement_type::IcingaAcknowledgementType;
-use crate::types::enums::event_stream_type::IcingaEventStreamType;
 use crate::types::enums::host_or_service_state::IcingaHostOrServiceState;
 use crate::types::enums::state_type::IcingaStateType;
 use crate::types::names::{IcingaHostName, IcingaServiceName};
@@ -16,9 +15,6 @@ use crate::types::names::{IcingaHostName, IcingaServiceName};
 /// the AcknowledgementCleared event type
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaEventAcknowledgementCleared {
-    /// type of event
-    #[serde(rename = "type")]
-    pub event_type: IcingaEventStreamType,
     /// when the event happened
     #[serde(
         serialize_with = "serialize_icinga_timestamp",

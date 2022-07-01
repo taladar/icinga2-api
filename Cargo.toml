@@ -18,7 +18,7 @@ debug = true
 
 [features]
 default = ["async","blocking"]
-async   = []
+async   = ["dep:futures", "dep:tokio", "dep:tokio-stream", "dep:tokio-util", "reqwest/stream"]
 blocking = ["reqwest/blocking"]
 
 [dependencies]
@@ -64,6 +64,24 @@ version = "0.2.8"
 [dependencies.time]
 version = "0.3.9"
 features = [ "macros", "serde", "serde-human-readable" ]
+
+[dependencies.futures]
+version = "0.3.21"
+optional = true
+
+[dependencies.tokio]
+version = "1.19.2"
+optional = true
+
+[dependencies.tokio-stream]
+version = "0.1.9"
+features = ["io-util"]
+optional = true
+
+[dependencies.tokio-util]
+version = "0.7.3"
+features = ["io"]
+optional = true
 
 [dev-dependencies.pretty_assertions]
 version = "1.2.1"

@@ -5,15 +5,11 @@
 use serde::{Deserialize, Serialize};
 
 use crate::serde::{deserialize_icinga_timestamp, serialize_icinga_timestamp};
-use crate::types::enums::event_stream_type::IcingaEventStreamType;
 use crate::types::enums::object_type::IcingaObjectType;
 
 /// the ObjectCreated event type
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaEventObjectCreated {
-    /// type of event
-    #[serde(rename = "type")]
-    pub event_type: IcingaEventStreamType,
     /// when the event happened
     #[serde(
         serialize_with = "serialize_icinga_timestamp",

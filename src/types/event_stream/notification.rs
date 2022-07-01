@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::serde::{deserialize_icinga_timestamp, serialize_icinga_timestamp};
 use crate::types::common::check_result::IcingaCheckResult;
-use crate::types::enums::event_stream_type::IcingaEventStreamType;
 use crate::types::enums::notification_type::IcingaNotificationType;
 use crate::types::names::{
     IcingaHostName, IcingaNotificationCommandName, IcingaServiceName, IcingaUserName,
@@ -17,9 +16,6 @@ use crate::types::names::{
 /// the Notification event type
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IcingaEventNotification {
-    /// type of event
-    #[serde(rename = "type")]
-    pub event_type: IcingaEventStreamType,
     /// when the event happened
     #[serde(
         serialize_with = "serialize_icinga_timestamp",
