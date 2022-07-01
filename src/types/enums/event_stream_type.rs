@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 /// Icinga API Event Stream Types
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum IcingsEventStreamType {
+pub enum IcingaEventStreamType {
     /// a new check result
     CheckResult,
     /// a host or service state changed
