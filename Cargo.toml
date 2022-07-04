@@ -9,7 +9,7 @@ edition = "2021"
 repository = "https://github.com/taladar/icinga2-api"
 keywords = [ "icinga2", "api" ]
 categories = [ "api-bindings" ]
-exclude = [ ".env", "tarpaulin-report.html", "tarpaulin-report.json" ]
+exclude = [ ".env", "*_instance.toml", "*.pem", "*.crt", "*.key", "tarpaulin-report.html", "tarpaulin-report.json" ]
 
 [profile.release]
 # do not strip debug info from release builds, useful for debugging those, cargo-flamegraph profiling or similar use cases
