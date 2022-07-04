@@ -23,11 +23,11 @@ pub struct Icinga2Async {
     /// the HTTP client to use
     client: reqwest::Client,
     /// the base URL for the Icinga API
-    url: url::Url,
+    pub url: url::Url,
     /// username
     pub username: String,
     /// password
-    pub password: String,
+    password: String,
 }
 
 impl Icinga2Async {

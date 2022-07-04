@@ -12,11 +12,11 @@ pub struct Icinga2 {
     /// the HTTP client to use
     client: reqwest::blocking::Client,
     /// the base URL for the Icinga API
-    url: url::Url,
+    pub url: url::Url,
     /// username
     pub username: String,
     /// password
-    pub password: String,
+    password: String,
 }
 
 impl Icinga2 {
