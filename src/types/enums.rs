@@ -1,6 +1,7 @@
 //! Icinga enums
 
 pub mod acknowledgement_type;
+pub mod command_type;
 pub mod comment_type;
 pub mod downtime_child_options;
 pub mod event_stream_type;

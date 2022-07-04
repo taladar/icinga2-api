@@ -5,7 +5,7 @@
 use serde::{Deserialize, Serialize};
 
 /// what to do with children when a downtime starts
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum IcingaDowntimeChildOptions {
     /// downtime does not affect children
     DowntimeNoChildren,

@@ -43,4 +43,10 @@ pub enum Error {
     /// uninitialized field in builder
     #[error("uninitialized field in builder: {0}")]
     UninitializedFieldInBuilder(#[from] derive_builder::UninitializedFieldError),
+    /// all_services invalid when targeting a service
+    #[error("all_services is invalid when targeting a service for a downtime")]
+    AllServicesInvalidOnServiceDowntime,
+    /// duration parameter is required for flexible downtimes but not for fixed ones
+    #[error("duration is required for flexible downtimes")]
+    DurationRequiredOnFlexibleDowntime,
 }

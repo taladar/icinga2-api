@@ -17,6 +17,10 @@ use crate::types::rest::{RestApiEndpoint, RestApiResponse};
 
 /// REST API Endpoint for the process-check-result call
 #[derive(Debug, Clone, derive_builder::Builder, Serialize, Deserialize)]
+#[builder(
+    build_fn(error = "crate::error::Error", validate = "Self::validate"),
+    derive(Debug)
+)]
 pub struct ProcessCheckResult {
     ///  For services: 0=OK, 1=WARNING, 2=CRITICAL, 3=UNKNOWN
     ///  For hosts: 0=UP, 1=DOWN
