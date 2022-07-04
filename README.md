@@ -34,7 +34,8 @@ at the moment.
 
 Creation, modification and deletion of config objects is not supported.
 
-Actions are not supported yet.
+All actions are supported but they have not been tested as extensively as the
+query API.
 
 Event Streams are supported in the async version of the client, supporting all
 event types. There is no handling of connection loss within this crate at this
