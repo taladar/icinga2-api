@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use serde::Deserialize;
 
 /// this represents the configuration for an Icinga instance we connect to
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Icinga2Instance {
     /// the URL to connect to, without the v1 component or anything after that
     pub url: String,

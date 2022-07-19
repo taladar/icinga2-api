@@ -24,7 +24,7 @@ impl std::fmt::Display for IcingaUserJoinTypes {
 }
 
 /// return type joins for users
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaUserJoins {
     /// the time period when the user is active
     pub period: Option<IcingaJoinResult<IcingaTimePeriod>>,

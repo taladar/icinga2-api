@@ -38,7 +38,7 @@ impl std::fmt::Display for IcingaDependencyJoinTypes {
 }
 
 /// return type joins for dependencies
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaDependencyJoins {
     /// the child host of the dependency
     pub child_host: Option<IcingaJoinResult<IcingaHost>>,

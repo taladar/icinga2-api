@@ -23,7 +23,7 @@ impl std::fmt::Display for IcingaMetadataType {
 }
 
 /// metadata
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaMetadata {
     /// which other icinga objects use this object
     pub used_by: Option<Vec<IcingaObject>>,

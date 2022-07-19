@@ -13,7 +13,7 @@ use crate::serde::{
 use super::{custom_var_object::IcingaCustomVarObject, function::IcingaFunction};
 
 /// shared fields in the various command objects
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaCommand {
     /// shared config object and custom variable fields
     #[serde(flatten)]
@@ -61,7 +61,7 @@ pub enum IcingaCommandLine {
 }
 
 /// set_if condition in command argument description
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaArgumentCondition {
     /// a string condition, most likely a boolean variable
@@ -71,7 +71,7 @@ pub enum IcingaArgumentCondition {
 }
 
 /// the description of a single
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaCommandArgumentDescription {
     /// a simple string with the argument(s)

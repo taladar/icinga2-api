@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// host state
-#[derive(Debug, Serialize_repr, Deserialize_repr)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum IcingaHostState {
     /// host is up
@@ -18,7 +18,7 @@ pub enum IcingaHostState {
 }
 
 /// host state deserialization helper by name
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[repr(u8)]
 #[serde(remote = "IcingaHostState")]
 pub enum IcingaHostStateByName {

@@ -5,7 +5,7 @@
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// which state type we are dealing with
-#[derive(Debug, Serialize_repr, Deserialize_repr)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum IcingaStateType {
     /// soft state (recently changed)

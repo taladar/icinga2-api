@@ -13,7 +13,7 @@ use crate::types::enums::state_type::IcingaStateType;
 use crate::types::names::{IcingaHostName, IcingaServiceName};
 
 /// the AcknowledgementSet event type
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaEventAcknowledgementSet {
     /// when the event happened
     #[serde(

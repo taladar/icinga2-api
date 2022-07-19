@@ -8,7 +8,7 @@ use super::service_state::IcingaServiceState;
 use super::service_state::IcingaServiceStateByName;
 
 /// HostState and ServiceState, serialized/deserialized by name
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaHostOrServiceState {
     /// a host state

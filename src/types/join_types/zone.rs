@@ -24,7 +24,7 @@ impl std::fmt::Display for IcingaZoneJoinTypes {
 }
 
 /// return type joins for zones
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaZoneJoins {
     /// the parent zone
     pub parent: Option<IcingaJoinResult<IcingaZone>>,

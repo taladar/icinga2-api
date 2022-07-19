@@ -14,7 +14,7 @@ use crate::types::{
 };
 
 /// an icinga user (e.g. for notification purposes)
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaUser {
     /// type of icinga object, should always be User for this
     #[serde(rename = "type")]

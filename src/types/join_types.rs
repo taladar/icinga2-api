@@ -34,7 +34,7 @@ where
 }
 
 /// return type for joins, either full or partial
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaJoinResult<T> {
     /// a full result we get if we just specified e.g. joins=host

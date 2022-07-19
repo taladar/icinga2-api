@@ -1,3 +1,7 @@
+## 0.1.2
+
+Add Clone instances
+
 ## 0.1.1
 
 Adjust visibility of fields in Icinga2 and Icinga2Async

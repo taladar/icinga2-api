@@ -14,7 +14,7 @@ use crate::types::names::{
 };
 
 /// the Notification event type
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaEventNotification {
     /// when the event happened
     #[serde(

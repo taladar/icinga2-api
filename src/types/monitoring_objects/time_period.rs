@@ -15,7 +15,7 @@ use crate::types::{
 };
 
 /// an Icinga time period
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaTimePeriod {
     /// type of icinga object, should always be TimePeriod for this
     #[serde(rename = "type")]

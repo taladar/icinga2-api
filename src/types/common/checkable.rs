@@ -24,7 +24,7 @@ use super::check_result::IcingaCheckResult;
 use super::custom_var_object::IcingaCustomVarObject;
 
 /// shared attributes on any checkable object (host and service)
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaCheckable {
     /// shared config object and custom variable fields
     #[serde(flatten)]

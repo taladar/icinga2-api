@@ -13,7 +13,7 @@ use crate::types::{
 };
 
 /// a service group
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaServiceGroup {
     /// type of object
     #[serde(rename = "type")]

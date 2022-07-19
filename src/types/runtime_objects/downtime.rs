@@ -18,7 +18,7 @@ use crate::types::{
 };
 
 /// an icinga downtime
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaDowntime {
     /// type of icinga object, should always be Downtime for this
     #[serde(rename = "type")]

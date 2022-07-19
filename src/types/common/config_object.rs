@@ -19,7 +19,7 @@ use crate::serde::{
 };
 
 /// shared fields in the various objects defined in the configuration
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaConfigObject {
     /// full object name
     #[serde(rename = "__name")]

@@ -17,7 +17,7 @@ use crate::types::{
 };
 
 /// attributes on an [IcingaDependency]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaDependency {
     /// type of icinga object, should always be Dependency for this
     #[serde(rename = "type")]

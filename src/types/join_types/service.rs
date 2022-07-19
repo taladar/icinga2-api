@@ -39,7 +39,7 @@ impl std::fmt::Display for IcingaServiceJoinTypes {
 }
 
 /// return type joins for services
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaServiceJoins {
     /// the host this service is on
     pub host: Option<IcingaJoinResult<IcingaHost>>,

@@ -12,7 +12,7 @@ use crate::types::{
 };
 
 /// an icinga permission entry
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 
 pub enum IcingaPermissionEntry {
@@ -28,7 +28,7 @@ pub enum IcingaPermissionEntry {
 }
 
 /// an API user
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaApiUser {
     /// type of icinga object, should always be ApiUser for this
     #[serde(rename = "type")]

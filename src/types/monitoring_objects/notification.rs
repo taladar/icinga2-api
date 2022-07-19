@@ -24,7 +24,7 @@ use crate::types::{
 };
 
 /// an icinga notification
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaNotification {
     /// type of icinga object, should always be Notification for this
     #[serde(rename = "type")]

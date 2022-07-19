@@ -12,7 +12,7 @@ use crate::types::enums::state_type::IcingaStateType;
 use crate::types::names::{IcingaHostName, IcingaServiceName};
 
 /// the Flapping event type
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaEventFlapping {
     /// when the event happened
     #[serde(

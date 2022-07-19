@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::types::{common::command::IcingaCommand, enums::object_type::IcingaObjectType};
 
 /// a notification command
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaNotificationCommand {
     /// type of object
     #[serde(rename = "type")]

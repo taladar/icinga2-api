@@ -36,7 +36,7 @@ impl std::fmt::Display for IcingaNotificationJoinTypes {
 }
 
 /// return type joins for notifications
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaNotificationJoins {
     /// the host this Notification is about
     pub host: Option<IcingaJoinResult<IcingaHost>>,

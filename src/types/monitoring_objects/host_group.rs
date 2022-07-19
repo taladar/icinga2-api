@@ -13,7 +13,7 @@ use crate::types::{
 };
 
 /// a host group
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaHostGroup {
     /// type of object
     #[serde(rename = "type")]

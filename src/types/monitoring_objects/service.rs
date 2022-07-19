@@ -14,7 +14,7 @@ use crate::types::{
 };
 
 /// an Icinga monitored service
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaService {
     /// type of icinga object, should always be Service for this
     #[serde(rename = "type")]

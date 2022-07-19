@@ -36,7 +36,7 @@ impl std::fmt::Display for IcingaHostJoinTypes {
 }
 
 /// return type joins for hosts
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaHostJoins {
     /// the check command object for the host
     pub check_command: Option<IcingaJoinResult<IcingaCheckCommand>>,

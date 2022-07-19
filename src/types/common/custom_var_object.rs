@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use super::config_object::IcingaConfigObject;
 
 /// shared fields in the various objects supporting custom variables
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IcingaCustomVarObject {
     /// custom variables specific to this object
     pub vars: Option<BTreeMap<String, serde_json::Value>>,

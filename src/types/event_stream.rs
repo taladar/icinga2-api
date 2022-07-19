@@ -21,7 +21,7 @@ pub mod object_modified;
 pub mod state_change;
 
 /// the enum used to deserialize events from an event stream
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum IcingaEvent {
     /// a new check result
