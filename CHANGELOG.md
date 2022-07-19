@@ -1,3 +1,7 @@
+## 0.1.3
+
+Add Hash, PartialEq, Eq, PartialOrd, Ord to *Name types
+
 ## 0.1.2
 
 Add Clone instances
