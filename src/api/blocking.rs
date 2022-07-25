@@ -7,7 +7,7 @@ use serde::{de::DeserializeOwned, Serialize};
 use crate::types::rest::{RestApiEndpoint, RestApiResponse};
 
 /// the runtime object for an Icinga2 instance (blocking variant)
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Icinga2 {
     /// the HTTP client to use
     client: reqwest::blocking::Client,

@@ -1,3 +1,7 @@
+## 0.1.4
+
+Make clients Clone to support cloning to use them in multiple async tasks
+
 ## 0.1.3
 
 Add Hash, PartialEq, Eq, PartialOrd, Ord to *Name types
