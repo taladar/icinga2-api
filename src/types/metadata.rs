@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::common::{object::IcingaObject, source_location::IcingaSourceLocation};
 
 /// possible meta parameter values
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaMetadataType {
     /// includes information about the other icinga objects using each returned object
     UsedBy,
@@ -23,7 +23,7 @@ impl std::fmt::Display for IcingaMetadataType {
 }
 
 /// metadata
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct IcingaMetadata {
     /// which other icinga objects use this object
     pub used_by: Option<Vec<IcingaObject>>,

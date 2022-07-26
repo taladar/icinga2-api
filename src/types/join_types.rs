@@ -15,7 +15,7 @@ pub mod zone;
 pub trait IcingaJoinType {}
 
 /// joins
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaJoins<'a, JT>
 where
     JT: IcingaJoinType + Ord + std::fmt::Display,
@@ -34,7 +34,7 @@ where
 }
 
 /// return type for joins, either full or partial
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum IcingaJoinResult<T> {
     /// a full result we get if we just specified e.g. joins=host

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::enums::object_type::IcingaObjectType;
 
 /// represents an icinga filter as passed to icinga to limit queries and operations
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct IcingaFilter {
     /// the object type we want to filter
     #[serde(rename = "type")]

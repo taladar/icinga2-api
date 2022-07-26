@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 /// the type of command, used in the execute-command action
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaCommandType {
     /// check command
     CheckCommand,

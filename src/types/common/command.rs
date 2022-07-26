@@ -36,7 +36,7 @@ pub struct IcingaCommand {
 }
 
 /// command parameters (scalar values basically)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaCommandParameter {
     /// string value
@@ -48,7 +48,7 @@ pub enum IcingaCommandParameter {
 }
 
 /// command to execute with parameters
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaCommandLine {
     /// a single string for the whole command, will likely need a shell to do
@@ -61,7 +61,7 @@ pub enum IcingaCommandLine {
 }
 
 /// set_if condition in command argument description
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaArgumentCondition {
     /// a string condition, most likely a boolean variable
@@ -70,8 +70,8 @@ pub enum IcingaArgumentCondition {
     Function(IcingaFunction),
 }
 
-/// the description of a single
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// the description of a single command argument
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IcingaCommandArgumentDescription {
     /// a simple string with the argument(s)

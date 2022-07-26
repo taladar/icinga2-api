@@ -5,7 +5,7 @@
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// the type of comment in Icinga
-#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u8)]
 pub enum IcingaCommentType {
     /// a comment by a user directly

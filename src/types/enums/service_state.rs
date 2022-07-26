@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// service state
-#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u8)]
 pub enum IcingaServiceState {
     /// service is OK

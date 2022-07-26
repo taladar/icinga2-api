@@ -7,7 +7,7 @@ use crate::types::monitoring_objects::zone::IcingaZone;
 use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for zones
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaZoneJoinTypes {
     /// the parent zone object
     Parent,

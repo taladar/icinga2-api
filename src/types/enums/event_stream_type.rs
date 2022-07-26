@@ -7,7 +7,9 @@
 use serde::{Deserialize, Serialize};
 
 /// Icinga API Event Stream Types
-#[derive(Debug, Clone, Serialize, Deserialize, derive_more::Display)]
+#[derive(
+    Debug, Clone, Serialize, Deserialize, derive_more::Display, Hash, PartialEq, Eq, PartialOrd, Ord,
+)]
 pub enum IcingaEventStreamType {
     /// a new check result
     CheckResult,

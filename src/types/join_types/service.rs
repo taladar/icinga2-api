@@ -10,7 +10,7 @@ use crate::types::monitoring_objects::{
 use super::{IcingaJoinResult, IcingaJoinType};
 
 /// possible joins parameter values for services
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IcingaServiceJoinTypes {
     /// the host the service is on
     Host,

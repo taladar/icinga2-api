@@ -5,14 +5,14 @@ use serde::{Deserialize, Serialize};
 use super::{enums::object_type::IcingaObjectType, metadata::IcingaMetadata};
 
 /// wrapper for Json results
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ResultsWrapper<T> {
     /// the internal field in the Icinga2 object containing all an array of the actual results
     pub results: Vec<T>,
 }
 
 /// the result of an icinga query to a type with joins
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct QueryResultObjectWithJoins<Obj, ObjJoins> {
     /// dependency attributes
     pub attrs: Obj,
@@ -28,7 +28,7 @@ pub struct QueryResultObjectWithJoins<Obj, ObjJoins> {
 }
 
 /// the result of an icinga query to a type without joins
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct QueryResultObject<Obj> {
     /// dependency attributes
     pub attrs: Obj,

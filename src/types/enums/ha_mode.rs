@@ -5,7 +5,7 @@
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// HA mode
-#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u8)]
 pub enum HAMode {
     /// run a check once

@@ -3,7 +3,9 @@
 use serde::{Deserialize, Serialize};
 
 /// the type of icinga object we are dealing with
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, derive_more::Display)]
+#[derive(
+    Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, derive_more::Display,
+)]
 pub enum IcingaObjectType {
     /// an icinga monitored host
     Host,

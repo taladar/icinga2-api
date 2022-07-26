@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::types::enums::object_type::IcingaObjectType;
 
 /// the description of an icinga function
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct IcingaFunction {
     /// the arguments
     pub arguments: Vec<String>,
