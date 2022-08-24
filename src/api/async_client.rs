@@ -10,6 +10,7 @@ use tokio::io::AsyncBufReadExt;
 use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 
+use crate::config::Icinga2Instance;
 use crate::types::{
     enums::event_stream_type::IcingaEventStreamType,
     event_stream::IcingaEvent,
@@ -31,17 +32,13 @@ pub struct Icinga2Async {
 }
 
 impl Icinga2Async {
-    /// create a new Icinga2 instance from a TOML config file
+    /// create a new Icinga2 instance from a config that was
+    /// either manually created or previously loaded via [Icinga2Instance::from_config_file]
     ///
     /// # Errors
-    /// this fails if the configuration file can not be found or parsed
-    /// or the CA certificate file mentioned in the configuration file
+    /// this fails if the CA certificate file mentioned in the configuration
     /// can not be found or parsed
-    pub fn from_config_file(path: &Path) -> Result<Self, crate::error::Error> {
-        let content =
-            std::fs::read_to_string(path).map_err(crate::error::Error::CouldNotReadConfigFile)?;
-        let config: crate::config::Icinga2Instance =
-            toml::from_str(&content).map_err(crate::error::Error::CouldNotParseConfig)?;
+    pub fn from_instance_config(config: &Icinga2Instance) -> Result<Self, crate::error::Error> {
         let client_builder = reqwest::ClientBuilder::new();
         let client_builder = client_builder.user_agent(concat!(
             env!("CARGO_PKG_NAME"),
@@ -73,14 +70,25 @@ impl Icinga2Async {
             .map_err(crate::error::Error::CouldNotBuildReqwestClientFromSuppliedInformation)?;
         let url =
             url::Url::parse(&config.url).map_err(crate::error::Error::CouldNotParseUrlInConfig)?;
-        let username = config.username;
-        let password = config.password;
+        let username = config.username.clone();
+        let password = config.password.clone();
         Ok(Icinga2Async {
             client,
             url,
             username,
             password,
         })
+    }
+
+    /// create a new Icinga2 instance from a TOML config file
+    ///
+    /// # Errors
+    /// this fails if the configuration file can not be found or parsed
+    /// or the CA certificate file mentioned in the configuration file
+    /// can not be found or parsed
+    pub fn from_config_file(path: &Path) -> Result<Self, crate::error::Error> {
+        let icinga_instance = Icinga2Instance::from_config_file(path)?;
+        Self::from_instance_config(&icinga_instance)
     }
 
     /// common code for the REST API calls

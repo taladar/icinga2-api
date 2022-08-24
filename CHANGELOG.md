@@ -1,3 +1,8 @@
+## 0.1.6
+
+optionally split config loading and use to allow using config that was previously
+loaded or config that wasn't stored in a TOML file at all
+
 ## 0.1.5
 
 Add Hash, PartialEq, Eq, PartialOrd, Ord to enums and other types where appropriate/possible
