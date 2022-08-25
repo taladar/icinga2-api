@@ -41,6 +41,20 @@ pub struct QueryResultObject<Obj> {
     pub object_type: IcingaObjectType,
 }
 
+/// represents a type of icinga object which can returned by a query
+pub trait QueryableObject {
+    /// the type of the endpoint for listing all objects of this type
+    type ListEndpoint;
+
+    /// returns the endpoint constructed by calling the builder's build method
+    /// without calling any of the builder methods first
+    ///
+    /// # Errors
+    ///
+    /// this returns any errors the builder's builder() call produces
+    fn default_query_endpoint() -> Result<Self::ListEndpoint, crate::error::Error>;
+}
+
 /// implement a query REST API Endpoint for the given Icinga type with join support
 macro_rules! query_with_joins {
     ($name:ident, $builder_name:ident, $object_category:path, $path_component:path, $return_type:ty, $join_types:ty, $join_return_type:ty, $object_type:expr, $url_fragment:expr) => {
@@ -56,7 +70,7 @@ macro_rules! query_with_joins {
                 IcingaJoins,
             },
             metadata::{add_meta_to_url, IcingaMetadataType},
-            query::{QueryResultObject, QueryResultObjectWithJoins, ResultsWrapper},
+            query::{QueryableObject, QueryResultObject, QueryResultObjectWithJoins, ResultsWrapper},
             rest::{RestApiEndpoint, RestApiResponse},
             $object_category::{
                 $path_component::{
@@ -90,6 +104,14 @@ macro_rules! query_with_joins {
             #[must_use]
             pub fn builder() -> $builder_name<'a> {
                 $builder_name::default()
+            }
+        }
+
+        impl QueryableObject for $return_type {
+            type ListEndpoint = $name<'static>;
+
+            fn default_query_endpoint() -> Result<Self::ListEndpoint, crate::error::Error> {
+                $name::builder().build()
             }
         }
 

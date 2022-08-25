@@ -1,3 +1,8 @@
+## 0.1.7
+
+add Queryable trait to allow writing of generic code for list queries without
+any filtering (ListHosts for all hosts, ListServices for all services,...)
+
 ## 0.1.6
 
 optionally split config loading and use to allow using config that was previously
