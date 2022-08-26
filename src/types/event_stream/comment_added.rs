@@ -10,7 +10,7 @@ use crate::serde::{deserialize_icinga_timestamp, serialize_icinga_timestamp};
 use crate::types::runtime_objects::comment::IcingaComment;
 
 /// the CommentAdded event type
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct IcingaEventCommentAdded {
     /// when the event happened
     #[serde(

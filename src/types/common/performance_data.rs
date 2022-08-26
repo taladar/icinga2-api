@@ -6,7 +6,9 @@ use crate::serde::{deserialize_empty_string_or_string, serialize_none_as_empty_s
 use crate::types::enums::object_type::IcingaObjectType;
 
 /// represents performance data
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// not Eq because it can contain floating point values
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum IcingaPerformanceData {
     /// performance data in string format

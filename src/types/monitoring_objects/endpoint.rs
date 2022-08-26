@@ -16,7 +16,7 @@ use crate::types::{
 };
 
 /// an endpoint to which icinga can connect (host, port,...)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IcingaEndpoint {
     /// type of icinga object, should always be Endpoint for this
     #[serde(rename = "type")]

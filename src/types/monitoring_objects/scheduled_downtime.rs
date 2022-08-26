@@ -18,7 +18,7 @@ use crate::types::{
 };
 
 /// a schedule repeating downtime
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct IcingaScheduledDowntime {
     /// type of icinga object, should always be ScheduledDowntime for this
     #[serde(rename = "type")]

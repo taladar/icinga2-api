@@ -1,3 +1,7 @@
+## 0.1.8
+
+add PartialEq and Eq instances to more types
+
 ## 0.1.7
 
 add Queryable trait to allow writing of generic code for list queries without

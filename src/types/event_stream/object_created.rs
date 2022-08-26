@@ -8,7 +8,7 @@ use crate::serde::{deserialize_icinga_timestamp, serialize_icinga_timestamp};
 use crate::types::enums::object_type::IcingaObjectType;
 
 /// the ObjectCreated event type
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct IcingaEventObjectCreated {
     /// when the event happened
     #[serde(

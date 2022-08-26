@@ -12,7 +12,7 @@ use crate::types::{
 };
 
 /// a user group
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct IcingaUserGroup {
     /// type of object
     #[serde(rename = "type")]

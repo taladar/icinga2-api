@@ -12,7 +12,9 @@ use crate::types::enums::{object_type::IcingaObjectType, service_state::IcingaSe
 use super::{command::IcingaCommandLine, performance_data::IcingaPerformanceData};
 
 /// a check result
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// not Eq because [IcingaPerformanceData] can contain floating point values
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IcingaCheckResult {
     /// was this an active check
     pub active: bool,

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::types::{common::command::IcingaCommand, enums::object_type::IcingaObjectType};
 
 /// a check command (e.g. in a join)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct IcingaCheckCommand {
     /// type of object
     #[serde(rename = "type")]

@@ -15,7 +15,7 @@ use crate::types::{
 };
 
 /// an icinga comment
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct IcingaComment {
     /// type of icinga object, should always be Comment for this
     #[serde(rename = "type")]

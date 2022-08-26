@@ -10,7 +10,7 @@ use crate::serde::{deserialize_icinga_timestamp, serialize_icinga_timestamp};
 use crate::types::runtime_objects::downtime::IcingaDowntime;
 
 /// the DowntimeRemoved event type
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct IcingaEventDowntimeRemoved {
     /// when the event happened
     #[serde(

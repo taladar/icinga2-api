@@ -17,7 +17,7 @@ use crate::types::{
 };
 
 /// a host monitored by Icinga
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IcingaHost {
     /// type of icinga object, should always be Host for this
     #[serde(rename = "type")]

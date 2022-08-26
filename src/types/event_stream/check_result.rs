@@ -11,7 +11,7 @@ use crate::types::common::check_result::IcingaCheckResult;
 use crate::types::names::{IcingaHostName, IcingaServiceName};
 
 /// the CheckResult stream event
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IcingaEventCheckResult {
     /// when the event happened
     #[serde(

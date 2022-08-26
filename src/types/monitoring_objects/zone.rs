@@ -13,7 +13,7 @@ use crate::types::{
 };
 
 /// an Icinga cluster zone
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct IcingaZone {
     /// type of icinga object, should always be Zone for this
     #[serde(rename = "type")]
