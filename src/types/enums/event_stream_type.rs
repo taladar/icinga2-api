@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 #[derive(
     Debug, Clone, Serialize, Deserialize, derive_more::Display, Hash, PartialEq, Eq, PartialOrd, Ord,
 )]
+#[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 pub enum IcingaEventStreamType {
     /// a new check result
     CheckResult,

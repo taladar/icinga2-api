@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// the type of command, used in the execute-command action
 #[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 pub enum IcingaCommandType {
     /// check command
     CheckCommand,

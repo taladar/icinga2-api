@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(
     Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, derive_more::Display,
 )]
+#[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 pub enum IcingaObjectType {
     /// an icinga monitored host
     Host,

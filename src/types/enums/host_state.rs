@@ -7,6 +7,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// host state
 #[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 #[repr(u8)]
 pub enum IcingaHostState {
     /// host is up

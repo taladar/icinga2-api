@@ -6,6 +6,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// type of acknowlegement in a checkable
 #[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 #[repr(u8)]
 pub enum IcingaAcknowledgementType {
     /// no acknowledgement

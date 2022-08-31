@@ -1,3 +1,7 @@
+## 0.1.9
+
+add optional Enumoid instances to enums (feature flag enumoid; default off)
+
 ## 0.1.8
 
 add PartialEq and Eq instances to more types

@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 /// icinga notification filter
 #[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 pub enum IcingaNotificationFilter {
     /// service state filter OK
     #[serde(rename = "OK")]
