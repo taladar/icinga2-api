@@ -1,3 +1,8 @@
+## 0.1.11
+
+add method to CustomVarHolder trait to deserialize the serde\_json::Value directly
+into a user supplied type
+
 ## 0.1.10
 
 add trait CustomVarHolder to make retrieving custom vars easier since they

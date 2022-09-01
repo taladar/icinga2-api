@@ -4,7 +4,7 @@
 
 use std::collections::BTreeMap;
 
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use super::config_object::IcingaConfigObject;
 
@@ -14,6 +14,15 @@ pub trait CustomVarHolder {
     /// retrieve a reference to the value of the named custom variable if it
     /// exists
     fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value>;
+
+    /// deserialize the Value into a user provided data type
+    fn custom_var_deserialized<T>(&self, name: &str) -> Option<T>
+    where
+        T: DeserializeOwned,
+    {
+        self.custom_var_value(name)
+            .and_then(|v| serde_json::from_value(v.clone()).ok())
+    }
 }
 
 /// shared fields in the various objects supporting custom variables
