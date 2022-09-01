@@ -1,3 +1,8 @@
+## 0.1.13
+
+missed adding QueryableObject implementations in the macro generating implementations
+without joins originally, this version fixes that
+
 ## 0.1.12
 
 add derived Copy instances to enums

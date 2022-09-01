@@ -217,7 +217,7 @@ macro_rules! query {
             enums::object_type::IcingaObjectType,
             filter::IcingaFilter,
             metadata::{add_meta_to_url, IcingaMetadataType},
-            query::{QueryResultObject, ResultsWrapper},
+            query::{QueryableObject, QueryResultObject, ResultsWrapper},
             rest::{RestApiEndpoint, RestApiResponse},
             $object_category::{
                 $path_component::{
@@ -248,6 +248,14 @@ macro_rules! query {
             #[must_use]
             pub fn builder() -> $builder_name {
                 $builder_name::default()
+            }
+        }
+
+        impl QueryableObject for $return_type {
+            type ListEndpoint = $name;
+
+            fn default_query_endpoint() -> Result<Self::ListEndpoint, crate::error::Error> {
+                $name::builder().build()
             }
         }
 
