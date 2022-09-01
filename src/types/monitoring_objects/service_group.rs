@@ -7,6 +7,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::serde::{deserialize_empty_string_or_string, serialize_none_as_empty_string};
+use crate::types::common::custom_var_object::CustomVarHolder;
 use crate::types::{
     common::custom_var_object::IcingaCustomVarObject, enums::object_type::IcingaObjectType,
     names::IcingaServiceGroupName,
@@ -43,4 +44,10 @@ pub struct IcingaServiceGroup {
         deserialize_with = "deserialize_empty_string_or_string"
     )]
     pub notes_url: Option<String>,
+}
+
+impl CustomVarHolder for IcingaServiceGroup {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.custom_var.custom_var_value(name)
+    }
 }

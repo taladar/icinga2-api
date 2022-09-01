@@ -1,3 +1,8 @@
+## 0.1.10
+
+add trait CustomVarHolder to make retrieving custom vars easier since they
+are often in a relatively deeply nested field
+
 ## 0.1.9
 
 add optional Enumoid instances to enums (feature flag enumoid; default off)

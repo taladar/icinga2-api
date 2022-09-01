@@ -7,6 +7,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::serde::{deserialize_optional_icinga_timestamp, serialize_optional_icinga_timestamp};
+use crate::types::common::custom_var_object::CustomVarHolder;
 use crate::types::{
     common::checkable::IcingaCheckable,
     enums::{object_type::IcingaObjectType, service_state::IcingaServiceState},
@@ -58,4 +59,10 @@ pub struct IcingaService {
     pub last_state_warning: Option<time::OffsetDateTime>,
     /// the current state
     pub state: IcingaServiceState,
+}
+
+impl CustomVarHolder for IcingaService {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.checkable.custom_var_value(name)
+    }
 }

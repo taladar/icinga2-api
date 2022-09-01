@@ -9,7 +9,10 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use crate::types::{
-    common::{custom_var_object::IcingaCustomVarObject, function::IcingaFunction},
+    common::{
+        custom_var_object::{CustomVarHolder, IcingaCustomVarObject},
+        function::IcingaFunction,
+    },
     enums::object_type::IcingaObjectType,
     names::IcingaTimePeriodName,
 };
@@ -43,4 +46,10 @@ pub struct IcingaTimePeriod {
     pub segments: Option<Vec<serde_json::Value>>,
     /// is the current time inside this time period
     pub is_inside: Option<bool>,
+}
+
+impl CustomVarHolder for IcingaTimePeriod {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.custom_var.custom_var_value(name)
+    }
 }

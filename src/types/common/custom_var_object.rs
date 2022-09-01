@@ -8,6 +8,14 @@ use serde::{Deserialize, Serialize};
 
 use super::config_object::IcingaConfigObject;
 
+/// allows easier retrieval of custom variables from all objects which store them somewhere
+/// (possibly deep in some nested field)
+pub trait CustomVarHolder {
+    /// retrieve a reference to the value of the named custom variable if it
+    /// exists
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value>;
+}
+
 /// shared fields in the various objects supporting custom variables
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct IcingaCustomVarObject {
@@ -16,4 +24,10 @@ pub struct IcingaCustomVarObject {
     /// shared config object fields
     #[serde(flatten)]
     pub config_object: IcingaConfigObject,
+}
+
+impl CustomVarHolder for IcingaCustomVarObject {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.vars.as_ref().and_then(|vars| vars.get(name))
+    }
 }

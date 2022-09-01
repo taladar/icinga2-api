@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::serde::{
     deserialize_empty_string_or_parse, serialize_none_as_empty_string_or_to_string,
 };
+use crate::types::common::custom_var_object::CustomVarHolder;
 use crate::types::names::IcingaTimePeriodName;
 use crate::types::{
     common::custom_var_object::IcingaCustomVarObject,
@@ -51,4 +52,10 @@ pub struct IcingaDependency {
     pub period: Option<IcingaTimePeriodName>,
     /// states when this dependency is enabled
     pub states: Vec<IcingaHostOrServiceState>,
+}
+
+impl CustomVarHolder for IcingaDependency {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.custom_var.custom_var_value(name)
+    }
 }

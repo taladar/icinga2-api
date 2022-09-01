@@ -7,6 +7,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::serde::{deserialize_optional_icinga_timestamp, serialize_optional_icinga_timestamp};
+use crate::types::common::custom_var_object::CustomVarHolder;
 use crate::types::{
     common::custom_var_object::IcingaCustomVarObject,
     enums::{host_or_service_state::IcingaHostOrServiceState, object_type::IcingaObjectType},
@@ -44,4 +45,10 @@ pub struct IcingaUser {
         deserialize_with = "deserialize_optional_icinga_timestamp"
     )]
     pub last_notification: Option<time::OffsetDateTime>,
+}
+
+impl CustomVarHolder for IcingaUser {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.custom_var.custom_var_value(name)
+    }
 }

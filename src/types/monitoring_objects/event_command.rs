@@ -6,7 +6,10 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::types::{common::command::IcingaCommand, enums::object_type::IcingaObjectType};
+use crate::types::{
+    common::{command::IcingaCommand, custom_var_object::CustomVarHolder},
+    enums::object_type::IcingaObjectType,
+};
 
 /// an event command (e.g. in a join)
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -17,4 +20,10 @@ pub struct IcingaEventCommand {
     /// shared fields in all command types
     #[serde(flatten)]
     pub command: IcingaCommand,
+}
+
+impl CustomVarHolder for IcingaEventCommand {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.command.custom_var_value(name)
+    }
 }

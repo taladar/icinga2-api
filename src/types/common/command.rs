@@ -10,7 +10,10 @@ use crate::serde::{
     deserialize_optional_seconds_as_duration, serialize_optional_duration_as_seconds,
 };
 
-use super::{custom_var_object::IcingaCustomVarObject, function::IcingaFunction};
+use super::{
+    custom_var_object::{CustomVarHolder, IcingaCustomVarObject},
+    function::IcingaFunction,
+};
 
 /// shared fields in the various command objects
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -33,6 +36,12 @@ pub struct IcingaCommand {
         deserialize_with = "deserialize_optional_seconds_as_duration"
     )]
     pub timeout: Option<time::Duration>,
+}
+
+impl CustomVarHolder for IcingaCommand {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.custom_var.custom_var_value(name)
+    }
 }
 
 /// command parameters (scalar values basically)

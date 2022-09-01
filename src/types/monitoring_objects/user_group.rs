@@ -7,7 +7,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::types::{
-    common::custom_var_object::IcingaCustomVarObject, enums::object_type::IcingaObjectType,
+    common::custom_var_object::{CustomVarHolder, IcingaCustomVarObject},
+    enums::object_type::IcingaObjectType,
     names::IcingaUserGroupName,
 };
 
@@ -24,4 +25,10 @@ pub struct IcingaUserGroup {
     pub display_name: String,
     /// a list of groups the user group belongs to
     pub groups: Option<Vec<IcingaUserGroupName>>,
+}
+
+impl CustomVarHolder for IcingaUserGroup {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.custom_var.custom_var_value(name)
+    }
 }

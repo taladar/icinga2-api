@@ -21,6 +21,7 @@ use crate::types::names::IcingaEventCommandName;
 use crate::types::names::IcingaTimePeriodName;
 
 use super::check_result::IcingaCheckResult;
+use super::custom_var_object::CustomVarHolder;
 use super::custom_var_object::IcingaCustomVarObject;
 
 /// shared attributes on any checkable object (host and service)
@@ -215,4 +216,10 @@ pub struct IcingaCheckable {
     pub state_type: IcingaStateType,
     /// treat all state changes as HARD changes
     pub volatile: bool,
+}
+
+impl CustomVarHolder for IcingaCheckable {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.custom_var.custom_var_value(name)
+    }
 }

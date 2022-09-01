@@ -12,6 +12,7 @@ use crate::serde::{
     deserialize_optional_icinga_timestamp, deserialize_optional_seconds_as_duration,
     serialize_optional_duration_as_seconds, serialize_optional_icinga_timestamp,
 };
+use crate::types::common::custom_var_object::CustomVarHolder;
 use crate::types::enums::notification_filter::IcingaNotificationFilter;
 use crate::types::enums::notification_type::IcingaNotificationType;
 use crate::types::{
@@ -82,4 +83,10 @@ pub struct IcingaNotification {
     pub last_problem_notification: Option<time::OffsetDateTime>,
     /// the command endpoint for the notification command
     pub command_endpoint: Option<IcingaEndpointName>,
+}
+
+impl CustomVarHolder for IcingaNotification {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.custom_var.custom_var_value(name)
+    }
 }

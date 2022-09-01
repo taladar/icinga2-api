@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use crate::serde::{
     deserialize_optional_seconds_as_duration, serialize_optional_duration_as_seconds,
 };
+use crate::types::common::custom_var_object::CustomVarHolder;
 use crate::types::{
     common::custom_var_object::IcingaCustomVarObject,
     enums::{downtime_child_options::IcingaDowntimeChildOptions, object_type::IcingaObjectType},
@@ -46,4 +47,10 @@ pub struct IcingaScheduledDowntime {
     pub child_options: Option<IcingaDowntimeChildOptions>,
     /// which days and durations apply to this timeperiod.
     pub ranges: BTreeMap<String, String>,
+}
+
+impl CustomVarHolder for IcingaScheduledDowntime {
+    fn custom_var_value(&self, name: &str) -> Option<&serde_json::Value> {
+        self.custom_var.custom_var_value(name)
+    }
 }
