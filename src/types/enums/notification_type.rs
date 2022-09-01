@@ -5,7 +5,7 @@
 use serde::{Deserialize, Serialize};
 
 /// a notification type
-#[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 pub enum IcingaNotificationType {
     /// start of a downtime

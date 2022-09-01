@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// service state
-#[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(
+    Debug, Clone, Copy, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord,
+)]
 #[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 #[repr(u8)]
 pub enum IcingaServiceState {

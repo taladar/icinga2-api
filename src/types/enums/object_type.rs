@@ -4,7 +4,17 @@ use serde::{Deserialize, Serialize};
 
 /// the type of icinga object we are dealing with
 #[derive(
-    Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, derive_more::Display,
+    Debug,
+    Clone,
+    Copy,
+    Hash,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+    derive_more::Display,
 )]
 #[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 pub enum IcingaObjectType {

@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// host state
-#[derive(Debug, Clone, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(
+    Debug, Clone, Copy, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord,
+)]
 #[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 #[repr(u8)]
 pub enum IcingaHostState {
@@ -19,7 +21,7 @@ pub enum IcingaHostState {
 }
 
 /// host state deserialization helper by name
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[repr(u8)]
 #[serde(remote = "IcingaHostState")]
 pub enum IcingaHostStateByName {

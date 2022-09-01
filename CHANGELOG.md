@@ -1,3 +1,7 @@
+## 0.1.12
+
+add derived Copy instances to enums
+
 ## 0.1.11
 
 add method to CustomVarHolder trait to deserialize the serde\_json::Value directly

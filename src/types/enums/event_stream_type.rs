@@ -8,7 +8,17 @@ use serde::{Deserialize, Serialize};
 
 /// Icinga API Event Stream Types
 #[derive(
-    Debug, Clone, Serialize, Deserialize, derive_more::Display, Hash, PartialEq, Eq, PartialOrd, Ord,
+    Debug,
+    Clone,
+    Copy,
+    Serialize,
+    Deserialize,
+    derive_more::Display,
+    Hash,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
 )]
 #[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 pub enum IcingaEventStreamType {
