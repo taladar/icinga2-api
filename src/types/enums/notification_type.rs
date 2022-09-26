@@ -9,21 +9,30 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "enumoid", derive(enumoid::Enumoid))]
 pub enum IcingaNotificationType {
     /// start of a downtime
+    #[serde(alias = "DOWNTIMESTART")]
     DowntimeStart,
     /// end of a downtime
+    #[serde(alias = "DOWNTIMEEND")]
     DowntimeEnd,
     /// removal of a downtime
+    #[serde(alias = "DOWNTIMECANCELLED")]
     DowntimeRemoved,
     /// custom notification
+    #[serde(alias = "CUSTOM")]
     Custom,
     /// acknowledgement
+    #[serde(alias = "ACKNOWLEDGEMENT")]
     Acknowledgement,
     /// problem
+    #[serde(alias = "PROBLEM")]
     Problem,
     /// recovery
+    #[serde(alias = "RECOVERY")]
     Recovery,
     /// start of flapping
+    #[serde(alias = "FLAPPINGSTART")]
     FlappingStart,
     /// end of flapping
+    #[serde(alias = "FLAPPINGEND")]
     FlappingEnd,
 }

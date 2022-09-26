@@ -1,3 +1,7 @@
+## 0.1.15
+
+allow all uppercase Compat deserialization names for notification type enum
+
 ## 0.1.14
 
 fix deserialization of state field in StateChange event stream event
