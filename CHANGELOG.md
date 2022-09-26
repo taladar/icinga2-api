@@ -1,3 +1,7 @@
+## 0.1.14
+
+fix deserialization of state field in StateChange event stream event
+
 ## 0.1.13
 
 missed adding QueryableObject implementations in the macro generating implementations
