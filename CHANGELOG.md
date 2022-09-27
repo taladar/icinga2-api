@@ -1,3 +1,7 @@
+## 0.1.16
+
+fix private fields in action response types that were not supposed to be private
+
 ## 0.1.15
 
 allow all uppercase Compat deserialization names for notification type enum
