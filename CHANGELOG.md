@@ -1,3 +1,9 @@
+## 0.1.17
+
+fix SPDX license expression in Cargo.toml
+replace dotenv (unmaintained) with dotenvy
+update dependencies to get new versions of tracing-subscriber and pretty-assertions without unmaintained dependencies
+
 ## 0.1.16
 
 fix private fields in action response types that were not supposed to be private
