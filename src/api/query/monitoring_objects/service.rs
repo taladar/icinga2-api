@@ -33,7 +33,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_services() -> Result<(), Box<dyn Error>> {
-        dotenv::dotenv()?;
+        dotenvy::dotenv()?;
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
@@ -49,7 +49,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_services_partial_host_join() -> Result<(), Box<dyn Error>> {
-        dotenv::dotenv()?;
+        dotenvy::dotenv()?;
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
@@ -70,7 +70,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_services_filtered() -> Result<(), Box<dyn Error>> {
-        dotenv::dotenv()?;
+        dotenvy::dotenv()?;
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;

@@ -273,7 +273,7 @@ mod test {
     #[traced_test]
     #[tokio::test]
     async fn test_event_stream_async() -> Result<(), Box<dyn Error>> {
-        dotenv::dotenv()?;
+        dotenvy::dotenv()?;
         let icinga2 = Icinga2Async::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;

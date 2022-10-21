@@ -34,7 +34,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_hosts() -> Result<(), Box<dyn Error>> {
-        dotenv::dotenv()?;
+        dotenvy::dotenv()?;
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
@@ -50,7 +50,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_hosts_filtered() -> Result<(), Box<dyn Error>> {
-        dotenv::dotenv()?;
+        dotenvy::dotenv()?;
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
@@ -71,7 +71,7 @@ mod test {
     #[traced_test]
     #[tokio::test]
     async fn test_hosts_async() -> Result<(), Box<dyn Error>> {
-        dotenv::dotenv()?;
+        dotenvy::dotenv()?;
         let icinga2 = Icinga2Async::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;

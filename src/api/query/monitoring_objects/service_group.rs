@@ -20,7 +20,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_service_groups() -> Result<(), Box<dyn Error>> {
-        dotenv::dotenv()?;
+        dotenvy::dotenv()?;
         let icinga2 = Icinga2::from_config_file(std::path::Path::new(&std::env::var(
             "ICINGA_TEST_INSTANCE_CONFIG",
         )?))?;
