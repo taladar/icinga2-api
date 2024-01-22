@@ -141,8 +141,8 @@ macro_rules! query_with_joins {
         impl<'a> RestApiEndpoint for $name<'a> {
             type RequestBody = IcingaFilter;
 
-            fn method(&self) -> Result<http::Method, crate::error::Error> {
-                Ok(http::Method::GET)
+            fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
+                Ok(reqwest::Method::GET)
             }
 
             fn url(&self, base_url: &url::Url) -> Result<url::Url, crate::error::Error> {
@@ -285,8 +285,8 @@ macro_rules! query {
         impl RestApiEndpoint for $name {
             type RequestBody = IcingaFilter;
 
-            fn method(&self) -> Result<http::Method, crate::error::Error> {
-                Ok(http::Method::GET)
+            fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
+                Ok(reqwest::Method::GET)
             }
 
             fn url(&self, base_url: &url::Url) -> Result<url::Url, crate::error::Error> {

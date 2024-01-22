@@ -19,7 +19,7 @@ pub trait RestApiEndpoint {
     /// # Errors
     ///
     /// this should return an error if something went wrong in determining the request method
-    fn method(&self) -> Result<http::Method, crate::error::Error>;
+    fn method(&self) -> Result<reqwest::Method, crate::error::Error>;
 
     /// returns the URL to use for the request based on the base URL passed in
     /// as a parameter

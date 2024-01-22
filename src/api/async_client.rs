@@ -109,17 +109,17 @@ impl Icinga2Async {
         let url = api_endpoint.url(&self.url)?;
         let request_body: Option<std::borrow::Cow<<ApiEndpoint as RestApiEndpoint>::RequestBody>> =
             api_endpoint.request_body()?;
-        let actual_method = if method == http::Method::GET && request_body.is_some() {
-            http::Method::POST
+        let actual_method = if method == reqwest::Method::GET && request_body.is_some() {
+            reqwest::Method::POST
         } else {
             method.to_owned()
         };
         let mut req = self.client.request(actual_method, url.to_owned());
-        if method == http::Method::GET && request_body.is_some() {
+        if method == reqwest::Method::GET && request_body.is_some() {
             tracing::trace!("Sending GET request with body as POST via X-HTTP-Method-Override");
             req = req.header(
                 "X-HTTP-Method-Override",
-                http::header::HeaderValue::from_static("GET"),
+                reqwest::header::HeaderValue::from_static("GET"),
             );
         }
         req = req.basic_auth(&self.username, Some(&self.password));
@@ -214,7 +214,7 @@ impl Icinga2Async {
         queue: &str,
         filter: Option<IcingaFilter>,
     ) -> Result<impl Stream<Item = Result<IcingaEvent, std::io::Error>>, crate::error::Error> {
-        let method = http::Method::POST;
+        let method = reqwest::Method::POST;
         let mut url = self
             .url
             .join("v1/events")

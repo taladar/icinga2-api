@@ -71,8 +71,8 @@ impl AddCommentBuilder {
 impl RestApiEndpoint for AddComment {
     type RequestBody = AddComment;
 
-    fn method(&self) -> Result<http::Method, crate::error::Error> {
-        Ok(http::Method::POST)
+    fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
+        Ok(reqwest::Method::POST)
     }
 
     fn url(&self, base_url: &url::Url) -> Result<url::Url, crate::error::Error> {
