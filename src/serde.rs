@@ -112,7 +112,7 @@ where
     }
 }
 
-/// serialize an Option<String> as an empty string in the None case and normally
+/// serialize an `Option<String>` as an empty string in the None case and normally
 /// otherwise
 ///
 /// # Errors
