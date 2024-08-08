@@ -80,6 +80,7 @@ macro_rules! query_with_joins {
         };
 
         /// query for Icinga objects of this type
+        #[allow(clippy::missing_errors_doc)]
         #[derive(Debug, Clone, derive_builder::Builder)]
         #[builder(
             build_fn(error = "crate::error::Error", validate = "Self::validate"),
@@ -227,6 +228,7 @@ macro_rules! query {
         };
 
         /// query for Icinga objects of this type
+        #[allow(clippy::missing_errors_doc)]
         #[derive(Debug, Clone, derive_builder::Builder)]
         #[builder(
             build_fn(error = "crate::error::Error", validate = "Self::validate"),
