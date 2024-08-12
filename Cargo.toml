@@ -3,7 +3,7 @@ name = "icinga2-api"
 description = "Rust client for the Icinga2 API"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
-version = "0.2.7"
+version = "0.2.8"
 authors = ["Matthias Hörmann <mhoermann@gmail.com>"]
 edition = "2021"
 repository = "https://github.com/taladar/icinga2-api"
@@ -36,11 +36,11 @@ version = "0.12.5"
 features = ["json"]
 
 [dependencies.serde]
-version = "1.0.205"
+version = "1.0.206"
 features = ["derive"]
 
 [dependencies.serde_json]
-version = "1.0.122"
+version = "1.0.124"
 
 [dependencies.serde_path_to_error]
 version = "0.1.16"
