@@ -75,7 +75,7 @@ pub struct IcingaNotification {
     pub next_notification: Option<time::OffsetDateTime>,
     /// the number of notifications sent out
     pub notification_number: u64,
-    /// the last notification that was about a problem (as opposed to acknowlegement or end of problem)
+    /// the last notification that was about a problem (as opposed to acknowledgement or end of problem)
     #[serde(
         serialize_with = "serialize_optional_icinga_timestamp",
         deserialize_with = "deserialize_optional_icinga_timestamp"

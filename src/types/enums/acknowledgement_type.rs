@@ -4,7 +4,7 @@
 
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
-/// type of acknowlegement in a checkable
+/// type of acknowledgement in a checkable
 #[derive(
     Debug, Clone, Copy, Serialize_repr, Deserialize_repr, Hash, PartialEq, Eq, PartialOrd, Ord,
 )]
