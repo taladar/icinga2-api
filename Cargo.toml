@@ -3,7 +3,7 @@ name = "icinga2-api"
 description = "Rust client for the Icinga2 API"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
-version = "0.2.9"
+version = "0.2.10"
 authors = ["Matthias Hörmann <mhoermann@gmail.com>"]
 edition = "2021"
 repository = "https://github.com/taladar/icinga2-api"
@@ -26,21 +26,21 @@ blocking = ["reqwest/blocking"]
 [dependencies]
 
 [dependencies.thiserror]
-version = "2.0.0"
+version = "2.0.3"
 
 [dependencies.tracing]
-version = "0.1.40"
+version = "0.1.41"
 
 [dependencies.reqwest]
 version = "0.12.9"
 features = ["json"]
 
 [dependencies.serde]
-version = "1.0.214"
+version = "1.0.215"
 features = ["derive"]
 
 [dependencies.serde_json]
-version = "1.0.132"
+version = "1.0.133"
 
 [dependencies.serde_path_to_error]
 version = "0.1.16"
@@ -59,7 +59,7 @@ version = "0.20.2"
 version = "0.8.19"
 
 [dependencies.url]
-version = "2.5.3"
+version = "2.5.4"
 
 [dependencies.http]
 version = "1.1.0"
@@ -73,7 +73,7 @@ version = "0.3.31"
 optional = true
 
 [dependencies.tokio]
-version = "1.41.0"
+version = "1.41.1"
 optional = true
 
 [dependencies.tokio-stream]
@@ -100,5 +100,5 @@ version = "0.15.7"
 version = "0.2.5"
 
 [dev-dependencies.tokio]
-version = "1.41.0"
+version = "1.41.1"
 features = [ "macros" ]
