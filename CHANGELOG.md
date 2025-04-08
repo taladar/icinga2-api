@@ -1,3 +1,7 @@
+## 0.2.16
+
+update dependencies
+
 ## 0.2.15
 
 update dependencies
