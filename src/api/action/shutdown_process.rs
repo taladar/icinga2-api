@@ -37,7 +37,7 @@ impl RestApiEndpoint for ShutdownProcess {
 
     fn request_body(
         &self,
-    ) -> Result<Option<std::borrow::Cow<Self::RequestBody>>, crate::error::Error>
+    ) -> Result<Option<std::borrow::Cow<'_, Self::RequestBody>>, crate::error::Error>
     where
         Self::RequestBody: Clone + serde::Serialize + std::fmt::Debug,
     {

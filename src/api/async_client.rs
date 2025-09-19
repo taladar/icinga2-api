@@ -241,9 +241,7 @@ impl Icinga2Async {
         } else if status.is_server_error() {
             tracing::error!(%url, %method, "Icinga2 status error (server error): {:?}", status);
         }
-        let byte_chunk_stream = result
-            .bytes_stream()
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e));
+        let byte_chunk_stream = result.bytes_stream().map_err(std::io::Error::other);
         let stream_reader = StreamReader::new(byte_chunk_stream);
         let line_reader = LinesStream::new(stream_reader.lines());
         let event_reader = line_reader.map(|l| match l {
@@ -255,7 +253,7 @@ impl Icinga2Async {
                         tracing::trace!("Icinga2 received event:\n{:#?}", &event);
                         Ok(event)
                     }
-                    Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, e)),
+                    Err(e) => Err(std::io::Error::other(e)),
                 }
             }
             Err(e) => Err(e),

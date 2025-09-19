@@ -38,7 +38,7 @@ pub trait RestApiEndpoint {
     /// this should return an error if something went wrong in determining the request body
     fn request_body(
         &self,
-    ) -> Result<Option<std::borrow::Cow<Self::RequestBody>>, crate::error::Error>
+    ) -> Result<Option<std::borrow::Cow<'_, Self::RequestBody>>, crate::error::Error>
     where
         Self::RequestBody: Clone + serde::Serialize + std::fmt::Debug;
 }

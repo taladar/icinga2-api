@@ -1,3 +1,10 @@
+# Changelog
+
+## 0.2.17
+
+update dependencies
+fix elided lifetime warnings
+
 ## 0.2.16
 
 update dependencies
@@ -71,7 +78,8 @@ update dependencies including some incompatible ones
 
 fix SPDX license expression in Cargo.toml
 replace dotenv (unmaintained) with dotenvy
-update dependencies to get new versions of tracing-subscriber and pretty-assertions without unmaintained dependencies
+update dependencies to get new versions of tracing-subscriber and
+pretty-assertions without unmaintained dependencies
 
 ## 0.1.16
 
@@ -87,8 +95,8 @@ fix deserialization of state field in StateChange event stream event
 
 ## 0.1.13
 
-missed adding QueryableObject implementations in the macro generating implementations
-without joins originally, this version fixes that
+missed adding QueryableObject implementations in the macro generating
+implementations without joins originally, this version fixes that
 
 ## 0.1.12
 
@@ -96,8 +104,8 @@ add derived Copy instances to enums
 
 ## 0.1.11
 
-add method to CustomVarHolder trait to deserialize the serde\_json::Value directly
-into a user supplied type
+add method to CustomVarHolder trait to deserialize the serde\_json::Value
+directly into a user supplied type
 
 ## 0.1.10
 
@@ -119,12 +127,13 @@ any filtering (ListHosts for all hosts, ListServices for all services,...)
 
 ## 0.1.6
 
-optionally split config loading and use to allow using config that was previously
-loaded or config that wasn't stored in a TOML file at all
+optionally split config loading and use to allow using config that was
+previously loaded or config that wasn't stored in a TOML file at all
 
 ## 0.1.5
 
-Add Hash, PartialEq, Eq, PartialOrd, Ord to enums and other types where appropriate/possible
+Add Hash, PartialEq, Eq, PartialOrd, Ord to enums and other types where
+appropriate/possible
 
 ## 0.1.4
 
