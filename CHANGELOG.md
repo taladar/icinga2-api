@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.19 - 2026-01-06 09:10:17Z
+
+### 🚀 Features
+
+- *(release)* Add release.sh and cliff.toml
+
+### ⚙️ Miscellaneous Tasks
+
+- *(dependencies)* Update dependencies
+
 ## 0.2.18
 
 update dependencies
