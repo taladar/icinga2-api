@@ -51,8 +51,7 @@ impl Icinga2 {
                 .map_err(crate::error::Error::CouldNotReadCACertFile)?;
             let ca_cert = reqwest::Certificate::from_pem(&ca_cert_content)
                 .map_err(crate::error::Error::CouldNotParsePEMCACertificate)?;
-            let client_builder = client_builder.add_root_certificate(ca_cert);
-            client_builder.tls_built_in_root_certs(false)
+            client_builder.tls_certs_only([ca_cert])
         } else {
             client_builder
         };
