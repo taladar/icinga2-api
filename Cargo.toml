@@ -51,7 +51,7 @@ version = "0.3.31"
 optional = true
 
 [dependencies.reqwest]
-version = "0.13.1"
+version = "0.13.2"
 features = ["json"]
 
 [dependencies.serde]
@@ -59,7 +59,7 @@ version = "1.0.228"
 features = ["derive"]
 
 [dependencies.serde_json]
-version = "1.0.148"
+version = "1.0.149"
 
 [dependencies.serde_path_to_error]
 version = "0.1.20"
@@ -68,10 +68,10 @@ version = "0.1.20"
 version = "0.1.20"
 
 [dependencies.thiserror]
-version = "2.0.17"
+version = "2.0.18"
 
 [dependencies.time]
-version = "0.3.44"
+version = "0.3.47"
 features = ["macros", "serde", "serde-human-readable"]
 
 [dependencies.tokio]
@@ -89,7 +89,7 @@ features = ["io"]
 optional = true
 
 [dependencies.toml]
-version = "0.9.10"
+version = "0.9.11"
 
 [dependencies.tracing]
 version = "0.1.44"
@@ -108,7 +108,7 @@ version = "1.49.0"
 features = ["macros"]
 
 [dev-dependencies.tracing-test]
-version = "0.2.5"
+version = "0.2.6"
 
 [profile.release]
 # do not strip debug info from release builds, useful for debugging those, cargo-flamegraph profiling or similar use cases
