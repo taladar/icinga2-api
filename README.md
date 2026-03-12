@@ -25,7 +25,6 @@ Supported:
 * time periods
 * users
 * zones
-
 * comments
 * downtimes
 
