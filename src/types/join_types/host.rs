@@ -27,10 +27,10 @@ impl IcingaJoinType for IcingaHostJoinTypes {}
 impl std::fmt::Display for IcingaHostJoinTypes {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            IcingaHostJoinTypes::CheckCommand => write!(f, "check_command"),
-            IcingaHostJoinTypes::CheckPeriod => write!(f, "check_period"),
-            IcingaHostJoinTypes::EventCommand => write!(f, "event_command"),
-            IcingaHostJoinTypes::CommandEndpoint => write!(f, "command_endpoint"),
+            Self::CheckCommand => write!(f, "check_command"),
+            Self::CheckPeriod => write!(f, "check_period"),
+            Self::EventCommand => write!(f, "event_command"),
+            Self::CommandEndpoint => write!(f, "command_endpoint"),
         }
     }
 }

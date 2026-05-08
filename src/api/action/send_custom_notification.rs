@@ -64,7 +64,7 @@ impl SendCustomNotificationBuilder {
 }
 
 impl RestApiEndpoint for SendCustomNotification {
-    type RequestBody = SendCustomNotification;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

@@ -17,18 +17,12 @@ crate::types::query::query_with_joins!(
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::{collections::BTreeMap, error::Error};
+    use std::error::Error;
     use tracing_test::traced_test;
 
     use crate::{
-        api::async_client::Icinga2Async,
-        api::blocking::Icinga2,
-        types::{
-            enums::{host_state::IcingaHostState, object_type::IcingaObjectType},
-            filter::IcingaFilter,
-            join_types::IcingaJoins,
-            metadata::IcingaMetadataType,
-        },
+        api::async_client::Icinga2Async, api::blocking::Icinga2,
+        types::enums::host_state::IcingaHostState,
     };
 
     #[traced_test]
@@ -42,7 +36,7 @@ mod test {
             .joins(IcingaJoins::AllJoins)
             .meta([IcingaMetadataType::UsedBy, IcingaMetadataType::Location])
             .build()?;
-        let _: ResultsWrapper<QueryResultObjectWithJoins<IcingaHost, IcingaHostJoins>> =
+        let _response: ResultsWrapper<QueryResultObjectWithJoins<IcingaHost, IcingaHostJoins>> =
             icinga2.rest(api_endpoint)?;
         Ok(())
     }
@@ -64,7 +58,8 @@ mod test {
                 )]),
             })
             .build()?;
-        let _: ResultsWrapper<QueryResultObject<IcingaHost>> = icinga2.rest(api_endpoint)?;
+        let _response: ResultsWrapper<QueryResultObject<IcingaHost>> =
+            icinga2.rest(api_endpoint)?;
         Ok(())
     }
 
@@ -79,7 +74,7 @@ mod test {
             .joins(IcingaJoins::AllJoins)
             .meta([IcingaMetadataType::UsedBy, IcingaMetadataType::Location])
             .build()?;
-        let _: ResultsWrapper<QueryResultObjectWithJoins<IcingaHost, IcingaHostJoins>> =
+        let _response: ResultsWrapper<QueryResultObjectWithJoins<IcingaHost, IcingaHostJoins>> =
             icinga2.rest(api_endpoint).await?;
         Ok(())
     }

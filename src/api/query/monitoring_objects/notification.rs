@@ -18,10 +18,7 @@ mod test {
     use std::error::Error;
     use tracing_test::traced_test;
 
-    use crate::{
-        api::blocking::Icinga2,
-        types::{join_types::IcingaJoins, metadata::IcingaMetadataType},
-    };
+    use crate::api::blocking::Icinga2;
 
     #[traced_test]
     #[test]
@@ -34,7 +31,7 @@ mod test {
             .joins(IcingaJoins::AllJoins)
             .meta([IcingaMetadataType::UsedBy, IcingaMetadataType::Location])
             .build()?;
-        let _: ResultsWrapper<
+        let _response: ResultsWrapper<
             QueryResultObjectWithJoins<IcingaNotification, IcingaNotificationJoins>,
         > = icinga2.rest(api_endpoint)?;
         Ok(())

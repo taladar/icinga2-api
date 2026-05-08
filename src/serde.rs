@@ -1,6 +1,6 @@
 //! Custom deserializers for various parts of the Icinga API results
 
-use serde::Deserialize;
+use serde::Deserialize as _;
 
 /// deserializes a unix timestamp with sub second accuracy
 /// (usually 6 digits after the decimal point for icinga)
@@ -10,6 +10,11 @@ use serde::Deserialize;
 /// returns an error if the value can not be parsed as an f64
 /// or if it can not be converted from a unix timestamp to a
 /// [time::OffsetDateTime]
+#[expect(
+    clippy::cast_possible_truncation,
+    clippy::as_conversions,
+    reason = "intentional conversion from f64 unix timestamp seconds to i128 nanoseconds for the Icinga API"
+)]
 pub fn deserialize_icinga_timestamp<'de, D>(
     deserializer: D,
 ) -> Result<time::OffsetDateTime, D::Error>
@@ -28,6 +33,11 @@ where
 /// # Errors
 ///
 /// this should not return any errors
+#[expect(
+    clippy::cast_precision_loss,
+    clippy::as_conversions,
+    reason = "intentional conversion from i128 nanoseconds to f64 unix timestamp seconds for the Icinga API"
+)]
 pub fn serialize_icinga_timestamp<S>(
     v: &time::OffsetDateTime,
     serializer: S,
@@ -48,6 +58,11 @@ where
 /// returns an error if the value can not be parsed as an f64
 /// or if it can not be converted from a unix timestamp to a
 /// [time::OffsetDateTime]
+#[expect(
+    clippy::cast_possible_truncation,
+    clippy::as_conversions,
+    reason = "intentional conversion from f64 unix timestamp seconds to i128 nanoseconds for the Icinga API"
+)]
 pub fn deserialize_optional_icinga_timestamp<'de, D>(
     deserializer: D,
 ) -> Result<Option<time::OffsetDateTime>, D::Error>
@@ -73,6 +88,11 @@ where
 /// # Errors
 ///
 /// this should not return any errors
+#[expect(
+    clippy::cast_precision_loss,
+    clippy::as_conversions,
+    reason = "intentional conversion from i128 nanoseconds to f64 unix timestamp seconds for the Icinga API"
+)]
 pub fn serialize_optional_icinga_timestamp<S>(
     v: &Option<time::OffsetDateTime>,
     serializer: S,
@@ -102,11 +122,7 @@ where
     let s: Option<String> = Option::deserialize(deserializer)?;
 
     if let Some(s) = s {
-        if s.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(s))
-        }
+        if s.is_empty() { Ok(None) } else { Ok(Some(s)) }
     } else {
         Ok(None)
     }

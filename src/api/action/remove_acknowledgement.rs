@@ -60,7 +60,7 @@ impl RemoveAcknowledgementBuilder {
 }
 
 impl RestApiEndpoint for RemoveAcknowledgement {
-    type RequestBody = RemoveAcknowledgement;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

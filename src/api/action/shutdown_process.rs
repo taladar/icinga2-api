@@ -10,6 +10,10 @@ use crate::types::rest::{RestApiEndpoint, RestApiResponse};
 
 /// REST API Endpoint for the shutdown-process call
 #[derive(Debug, Clone, derive_builder::Builder, Serialize, Deserialize)]
+#[expect(
+    clippy::empty_structs_with_brackets,
+    reason = "derive_builder::Builder does not support unit structs"
+)]
 pub struct ShutdownProcess {}
 
 impl ShutdownProcess {
@@ -23,7 +27,7 @@ impl ShutdownProcess {
 }
 
 impl RestApiEndpoint for ShutdownProcess {
-    type RequestBody = ShutdownProcess;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

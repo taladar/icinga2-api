@@ -48,7 +48,7 @@ impl ExecuteCommand {
 }
 
 impl RestApiEndpoint for ExecuteCommand {
-    type RequestBody = ExecuteCommand;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

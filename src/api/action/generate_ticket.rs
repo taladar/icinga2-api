@@ -27,7 +27,7 @@ impl GenerateTicket {
 }
 
 impl RestApiEndpoint for GenerateTicket {
-    type RequestBody = GenerateTicket;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

@@ -95,7 +95,7 @@ impl ProcessCheckResultBuilder {
 }
 
 impl RestApiEndpoint for ProcessCheckResult {
-    type RequestBody = ProcessCheckResult;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

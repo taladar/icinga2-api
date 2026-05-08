@@ -2,11 +2,11 @@
 
 use std::{path::Path, str::from_utf8};
 
-use futures::stream::TryStreamExt;
 use futures::Stream;
-use futures::StreamExt;
-use serde::{de::DeserializeOwned, Serialize};
-use tokio::io::AsyncBufReadExt;
+use futures::StreamExt as _;
+use futures::stream::TryStreamExt as _;
+use serde::{Serialize, de::DeserializeOwned};
+use tokio::io::AsyncBufReadExt as _;
 use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 
@@ -56,7 +56,7 @@ impl Icinga2Async {
         );
         let client_builder = client_builder.default_headers(headers);
         let client_builder = if let Some(ca_certificate) = &config.ca_certificate {
-            let ca_cert_content = std::fs::read(ca_certificate)
+            let ca_cert_content = fs_err::read(ca_certificate)
                 .map_err(crate::error::Error::CouldNotReadCACertFile)?;
             let ca_cert = reqwest::Certificate::from_pem(&ca_cert_content)
                 .map_err(crate::error::Error::CouldNotParsePEMCACertificate)?;
@@ -71,7 +71,7 @@ impl Icinga2Async {
             url::Url::parse(&config.url).map_err(crate::error::Error::CouldNotParseUrlInConfig)?;
         let username = config.username.clone();
         let password = config.password.clone();
-        Ok(Icinga2Async {
+        Ok(Self {
             client,
             url,
             username,
@@ -95,6 +95,10 @@ impl Icinga2Async {
     /// # Errors
     ///
     /// this returns an error if encoding, the actual request, or decoding of the response fail
+    #[expect(
+        clippy::future_not_send,
+        reason = "neither ApiEndpoint nor its RequestBody is required to be Send; callers that need a Send future can wrap with their own bounds"
+    )]
     pub async fn rest<ApiEndpoint, Res>(
         &self,
         api_endpoint: ApiEndpoint,
@@ -165,13 +169,13 @@ impl Icinga2Async {
                     if let Ok(response_body) = serde_json::from_slice(&response_body) {
                         let mut response_body: serde_json::Value = response_body;
                         for segment in path {
-                            match (response_body, segment) {
+                            let next = match (&response_body, segment) {
                                 (
                                     serde_json::Value::Array(vs),
                                     serde_path_to_error::Segment::Seq { index },
                                 ) => {
                                     if let Some(v) = vs.get(*index) {
-                                        response_body = v.to_owned();
+                                        v.clone()
                                     } else {
                                         // if we can not find the element serde_path_to_error references fall back to just returning the error
                                         return Err(e.into());
@@ -182,7 +186,7 @@ impl Icinga2Async {
                                     serde_path_to_error::Segment::Map { key },
                                 ) => {
                                     if let Some(v) = m.get(key) {
-                                        response_body = v.to_owned();
+                                        v.clone()
                                     } else {
                                         // if we can not find the element serde_path_to_error references fall back to just returning the error
                                         return Err(e.into());
@@ -192,7 +196,8 @@ impl Icinga2Async {
                                     // if we can not find the element serde_path_to_error references fall back to just returning the error
                                     return Err(e.into());
                                 }
-                            }
+                            };
+                            response_body = next;
                         }
                         tracing::error!("Value in location path references is: {}", response_body);
                     }
@@ -301,7 +306,7 @@ mod test {
             let event = stream.next().await;
             tracing::trace!("Got event:\n{:#?}", event);
             if let Some(event) = event {
-                assert!(event.is_ok());
+                event?;
             }
         }
         Ok(())

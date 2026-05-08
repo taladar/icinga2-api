@@ -18,7 +18,7 @@ impl IcingaJoinType for IcingaUserJoinTypes {}
 impl std::fmt::Display for IcingaUserJoinTypes {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            IcingaUserJoinTypes::Period => write!(f, "period"),
+            Self::Period => write!(f, "period"),
         }
     }
 }

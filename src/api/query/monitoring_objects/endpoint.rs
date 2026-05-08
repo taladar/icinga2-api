@@ -13,7 +13,7 @@ crate::types::query::query!(
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{api::blocking::Icinga2, types::metadata::IcingaMetadataType};
+    use crate::api::blocking::Icinga2;
     use std::error::Error;
     use tracing_test::traced_test;
 
@@ -27,7 +27,8 @@ mod test {
         let api_endpoint = ListEndpoints::builder()
             .meta([IcingaMetadataType::UsedBy, IcingaMetadataType::Location])
             .build()?;
-        let _: ResultsWrapper<QueryResultObject<IcingaEndpoint>> = icinga2.rest(api_endpoint)?;
+        let _response: ResultsWrapper<QueryResultObject<IcingaEndpoint>> =
+            icinga2.rest(api_endpoint)?;
         Ok(())
     }
 }

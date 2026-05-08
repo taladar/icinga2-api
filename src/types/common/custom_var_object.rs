@@ -4,7 +4,7 @@
 
 use std::collections::BTreeMap;
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 use super::config_object::IcingaConfigObject;
 

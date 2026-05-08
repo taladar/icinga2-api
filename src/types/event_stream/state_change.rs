@@ -77,7 +77,7 @@ impl TryFrom<IcingaEventStateChangeNumericState> for IcingaEventStateChange {
                 return Err(NumericToHostOrServiceStateError::UnknownNumericServiceState(n));
             }
         };
-        Ok(IcingaEventStateChange {
+        Ok(Self {
             timestamp: value.timestamp,
             host: value.host,
             service: value.service,
@@ -118,6 +118,10 @@ pub struct IcingaEventStateChangeNumericState {
 
 impl From<IcingaEventStateChange> for IcingaEventStateChangeNumericState {
     fn from(value: IcingaEventStateChange) -> Self {
+        #[expect(
+            clippy::match_same_arms,
+            reason = "host and service states with the same numeric value are kept as separate arms because they represent semantically different states in Icinga"
+        )]
         let state = match value.state {
             IcingaHostOrServiceState::Host(IcingaHostState::Up) => 0,
             IcingaHostOrServiceState::Host(IcingaHostState::Down) => 1,
@@ -129,7 +133,7 @@ impl From<IcingaEventStateChange> for IcingaEventStateChangeNumericState {
             IcingaHostOrServiceState::Service(IcingaServiceState::Unreachable) => 4,
             IcingaHostOrServiceState::Service(IcingaServiceState::Pending) => 99,
         };
-        IcingaEventStateChangeNumericState {
+        Self {
             timestamp: value.timestamp,
             host: value.host,
             service: value.service,

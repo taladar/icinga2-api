@@ -60,7 +60,7 @@ impl RemoveCommentBuilder {
 }
 
 impl RestApiEndpoint for RemoveComment {
-    type RequestBody = RemoveComment;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

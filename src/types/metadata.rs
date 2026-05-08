@@ -16,8 +16,8 @@ pub enum IcingaMetadataType {
 impl std::fmt::Display for IcingaMetadataType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            IcingaMetadataType::UsedBy => write!(f, "used_by"),
-            IcingaMetadataType::Location => write!(f, "location"),
+            Self::UsedBy => write!(f, "used_by"),
+            Self::Location => write!(f, "location"),
         }
     }
 }

@@ -75,7 +75,7 @@ impl AcknowledgeProblemBuilder {
 }
 
 impl RestApiEndpoint for AcknowledgeProblem {
-    type RequestBody = AcknowledgeProblem;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

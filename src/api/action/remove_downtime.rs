@@ -60,7 +60,7 @@ impl RemoveDowntimeBuilder {
 }
 
 impl RestApiEndpoint for RemoveDowntime {
-    type RequestBody = RemoveDowntime;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

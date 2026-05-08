@@ -68,7 +68,7 @@ impl RescheduleCheckBuilder {
 }
 
 impl RestApiEndpoint for RescheduleCheck {
-    type RequestBody = RescheduleCheck;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

@@ -27,10 +27,10 @@ impl IcingaJoinType for IcingaNotificationJoinTypes {}
 impl std::fmt::Display for IcingaNotificationJoinTypes {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            IcingaNotificationJoinTypes::Host => write!(f, "host"),
-            IcingaNotificationJoinTypes::Service => write!(f, "service"),
-            IcingaNotificationJoinTypes::Command => write!(f, "command"),
-            IcingaNotificationJoinTypes::Period => write!(f, "period"),
+            Self::Host => write!(f, "host"),
+            Self::Service => write!(f, "service"),
+            Self::Command => write!(f, "command"),
+            Self::Period => write!(f, "period"),
         }
     }
 }

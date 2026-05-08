@@ -19,13 +19,13 @@ rumdl fmt --fix CHANGELOG.md
 
 cargo build
 
-git add CHANGELOG.md Cargo.toml
+git add CHANGELOG.md Cargo.toml Cargo.lock
 
 git commit -m "chore(release): Release version ${version}"
 
 git tag "icinga2_api_${version}"
 
-for remote in origin github; do
+for remote in $(git remote); do
   git push "${remote}"
   git push "${remote}" "icinga2_api_${version}"
 done

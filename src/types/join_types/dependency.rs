@@ -28,11 +28,11 @@ impl IcingaJoinType for IcingaDependencyJoinTypes {}
 impl std::fmt::Display for IcingaDependencyJoinTypes {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            IcingaDependencyJoinTypes::ChildHost => write!(f, "child_host"),
-            IcingaDependencyJoinTypes::ChildService => write!(f, "child_service"),
-            IcingaDependencyJoinTypes::ParentHost => write!(f, "parent_host"),
-            IcingaDependencyJoinTypes::ParentService => write!(f, "parent_service"),
-            IcingaDependencyJoinTypes::Period => write!(f, "period"),
+            Self::ChildHost => write!(f, "child_host"),
+            Self::ChildService => write!(f, "child_service"),
+            Self::ParentHost => write!(f, "parent_host"),
+            Self::ParentService => write!(f, "parent_service"),
+            Self::Period => write!(f, "period"),
         }
     }
 }

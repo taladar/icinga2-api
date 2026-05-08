@@ -26,8 +26,8 @@ impl Icinga2Instance {
     /// can not be found or parsed
     pub fn from_config_file(path: &Path) -> Result<Self, crate::error::Error> {
         let content =
-            std::fs::read_to_string(path).map_err(crate::error::Error::CouldNotReadConfigFile)?;
-        let config: crate::config::Icinga2Instance =
+            fs_err::read_to_string(path).map_err(crate::error::Error::CouldNotReadConfigFile)?;
+        let config: Self =
             toml::from_str(&content).map_err(crate::error::Error::CouldNotParseConfig)?;
         Ok(config)
     }

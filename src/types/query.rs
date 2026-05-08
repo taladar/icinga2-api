@@ -57,7 +57,7 @@ pub trait QueryableObject {
 
 /// implement a query REST API Endpoint for the given Icinga type with join support
 macro_rules! query_with_joins {
-    ($name:ident, $builder_name:ident, $object_category:path, $path_component:path, $return_type:ty, $join_types:ty, $join_return_type:ty, $object_type:expr, $url_fragment:expr) => {
+    ($name:ident, $builder_name:ident, $object_category:ident, $path_component:ident, $return_type:ident, $join_types:ident, $join_return_type:ident, $object_type:expr, $url_fragment:expr) => {
         use std::collections::BTreeMap;
 
 #[rustfmt::skip]
@@ -72,24 +72,23 @@ macro_rules! query_with_joins {
             metadata::{add_meta_to_url, IcingaMetadataType},
             query::{QueryableObject, QueryResultObject, QueryResultObjectWithJoins, ResultsWrapper},
             rest::{RestApiEndpoint, RestApiResponse},
-            $object_category::{
-                $path_component::{
-                    $return_type,
-                }
-            }
+            $object_category::$path_component::$return_type,
         };
 
         /// query for Icinga objects of this type
-        #[allow(clippy::missing_errors_doc)]
+        #[allow(
+            clippy::missing_errors_doc,
+            reason = "derive_builder generated build() returns Result; #[expect] does not propagate through derive_builder, only #[allow] does"
+        )]
         #[derive(Debug, Clone, derive_builder::Builder)]
         #[builder(
             build_fn(error = "crate::error::Error", validate = "Self::validate"),
             derive(Debug)
         )]
-        pub struct $name<'a> {
+        pub struct $name {
             /// the joins (related objects) to return along with each result
             #[builder(default, setter(strip_option, into))]
-            joins: Option<IcingaJoins<'a, $join_types>>,
+            joins: Option<IcingaJoins<'static, $join_types>>,
             /// the metadata to return along with each result
             #[builder(default, setter(strip_option, into))]
             meta: Option<Vec<IcingaMetadataType>>,
@@ -98,25 +97,25 @@ macro_rules! query_with_joins {
             filter: Option<IcingaFilter>,
         }
 
-        impl<'a> $name<'a> {
+        impl $name {
             /// create a new builder for this endpoint
             ///
             /// this is usually the first step to calling this REST API endpoint
             #[must_use]
-            pub fn builder() -> $builder_name<'a> {
+            pub fn builder() -> $builder_name {
                 $builder_name::default()
             }
         }
 
         impl QueryableObject for $return_type {
-            type ListEndpoint = $name<'static>;
+            type ListEndpoint = $name;
 
             fn default_query_endpoint() -> Result<Self::ListEndpoint, crate::error::Error> {
                 $name::builder().build()
             }
         }
 
-        impl<'a> $builder_name<'a> {
+        impl $builder_name {
             /// makes sure the filter object type is the correct one for the type of return values this endpoint returns
             ///
             /// # Errors
@@ -139,7 +138,7 @@ macro_rules! query_with_joins {
             }
         }
 
-        impl<'a> RestApiEndpoint for $name<'a> {
+        impl RestApiEndpoint for $name {
             type RequestBody = IcingaFilter;
 
             fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
@@ -169,33 +168,33 @@ macro_rules! query_with_joins {
             }
         }
 
-        impl<'a> RestApiResponse<$name<'a>> for ResultsWrapper<QueryResultObject<$return_type>> {}
+        impl RestApiResponse<$name> for ResultsWrapper<QueryResultObject<$return_type>> {}
 
-        impl<'a> RestApiResponse<$name<'a>>
+        impl RestApiResponse<$name>
             for ResultsWrapper<QueryResultObject<BTreeMap<String, serde_json::Value>>>
         {
         }
 
-        impl<'a> RestApiResponse<$name<'a>>
+        impl RestApiResponse<$name>
             for ResultsWrapper<QueryResultObjectWithJoins<$return_type, $join_return_type>>
         {
         }
 
-        impl<'a> RestApiResponse<$name<'a>>
+        impl RestApiResponse<$name>
             for ResultsWrapper<
                 QueryResultObjectWithJoins<BTreeMap<String, serde_json::Value>, $join_return_type>,
             >
         {
         }
 
-        impl<'a> RestApiResponse<$name<'a>>
+        impl RestApiResponse<$name>
             for ResultsWrapper<
                 QueryResultObjectWithJoins<$return_type, BTreeMap<String, serde_json::Value>>,
             >
         {
         }
 
-        impl<'a> RestApiResponse<$name<'a>>
+        impl RestApiResponse<$name>
             for ResultsWrapper<
                 QueryResultObjectWithJoins<
                     BTreeMap<String, serde_json::Value>,
@@ -210,7 +209,7 @@ pub(crate) use query_with_joins;
 
 /// implement a query REST API Endpoint for the given Icinga type without join support
 macro_rules! query {
-    ($name:ident, $builder_name:ident, $object_category:path, $path_component:path, $return_type:ty, $object_type:expr, $url_fragment:expr) => {
+    ($name:ident, $builder_name:ident, $object_category:ident, $path_component:ident, $return_type:ident, $object_type:expr, $url_fragment:expr) => {
         use std::collections::BTreeMap;
 
 #[rustfmt::skip]
@@ -220,15 +219,14 @@ macro_rules! query {
             metadata::{add_meta_to_url, IcingaMetadataType},
             query::{QueryableObject, QueryResultObject, ResultsWrapper},
             rest::{RestApiEndpoint, RestApiResponse},
-            $object_category::{
-                $path_component::{
-                    $return_type,
-                },
-            },
+            $object_category::$path_component::$return_type,
         };
 
         /// query for Icinga objects of this type
-        #[allow(clippy::missing_errors_doc)]
+        #[allow(
+            clippy::missing_errors_doc,
+            reason = "derive_builder generated build() returns Result; #[expect] does not propagate through derive_builder, only #[allow] does"
+        )]
         #[derive(Debug, Clone, derive_builder::Builder)]
         #[builder(
             build_fn(error = "crate::error::Error", validate = "Self::validate"),

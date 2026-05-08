@@ -80,10 +80,8 @@ impl ScheduleDowntimeBuilder {
     ///
     /// this returns an error if the filter field object type is not Host or Service
     pub fn validate(&self) -> Result<(), crate::error::Error> {
-        if let Some(Some(false)) = &self.fixed {
-            if self.duration.is_none() {
-                return Err(crate::error::Error::DurationRequiredOnFlexibleDowntime);
-            }
+        if matches!(&self.fixed, Some(Some(false))) && self.duration.is_none() {
+            return Err(crate::error::Error::DurationRequiredOnFlexibleDowntime);
         }
         if let Some(Some(filter)) = &self.filter {
             if filter.object_type != IcingaObjectType::Host
@@ -103,7 +101,7 @@ impl ScheduleDowntimeBuilder {
 }
 
 impl RestApiEndpoint for ScheduleDowntime {
-    type RequestBody = ScheduleDowntime;
+    type RequestBody = Self;
 
     fn method(&self) -> Result<reqwest::Method, crate::error::Error> {
         Ok(reqwest::Method::POST)

@@ -2,7 +2,7 @@
 
 use std::{path::Path, str::from_utf8};
 
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{
     config::Icinga2Instance,
@@ -47,7 +47,7 @@ impl Icinga2 {
         );
         let client_builder = client_builder.default_headers(headers);
         let client_builder = if let Some(ca_certificate) = &config.ca_certificate {
-            let ca_cert_content = std::fs::read(ca_certificate)
+            let ca_cert_content = fs_err::read(ca_certificate)
                 .map_err(crate::error::Error::CouldNotReadCACertFile)?;
             let ca_cert = reqwest::Certificate::from_pem(&ca_cert_content)
                 .map_err(crate::error::Error::CouldNotParsePEMCACertificate)?;
@@ -62,7 +62,7 @@ impl Icinga2 {
             url::Url::parse(&config.url).map_err(crate::error::Error::CouldNotParseUrlInConfig)?;
         let username = config.username.clone();
         let password = config.password.clone();
-        Ok(Icinga2 {
+        Ok(Self {
             client,
             url,
             username,
@@ -156,13 +156,13 @@ impl Icinga2 {
                     if let Ok(response_body) = serde_json::from_slice(&response_body) {
                         let mut response_body: serde_json::Value = response_body;
                         for segment in path {
-                            match (response_body, segment) {
+                            let next = match (&response_body, segment) {
                                 (
                                     serde_json::Value::Array(vs),
                                     serde_path_to_error::Segment::Seq { index },
                                 ) => {
                                     if let Some(v) = vs.get(*index) {
-                                        response_body = v.to_owned();
+                                        v.clone()
                                     } else {
                                         // if we can not find the element serde_path_to_error references fall back to just returning the error
                                         return Err(e.into());
@@ -173,7 +173,7 @@ impl Icinga2 {
                                     serde_path_to_error::Segment::Map { key },
                                 ) => {
                                     if let Some(v) = m.get(key) {
-                                        response_body = v.to_owned();
+                                        v.clone()
                                     } else {
                                         // if we can not find the element serde_path_to_error references fall back to just returning the error
                                         return Err(e.into());
@@ -183,7 +183,8 @@ impl Icinga2 {
                                     // if we can not find the element serde_path_to_error references fall back to just returning the error
                                     return Err(e.into());
                                 }
-                            }
+                            };
+                            response_body = next;
                         }
                         tracing::error!("Value in location path references is: {}", response_body);
                     }

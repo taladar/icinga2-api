@@ -17,18 +17,10 @@ crate::types::query::query_with_joins!(
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::{collections::BTreeMap, error::Error};
+    use std::error::Error;
     use tracing_test::traced_test;
 
-    use crate::{
-        api::blocking::Icinga2,
-        types::{
-            enums::object_type::IcingaObjectType,
-            filter::IcingaFilter,
-            join_types::{service::IcingaServiceJoinTypes, IcingaJoins},
-            metadata::IcingaMetadataType,
-        },
-    };
+    use crate::api::blocking::Icinga2;
 
     #[traced_test]
     #[test]
@@ -41,8 +33,9 @@ mod test {
             .joins(IcingaJoins::AllJoins)
             .meta([IcingaMetadataType::UsedBy, IcingaMetadataType::Location])
             .build()?;
-        let _: ResultsWrapper<QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>> =
-            icinga2.rest(api_endpoint)?;
+        let _response: ResultsWrapper<
+            QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>,
+        > = icinga2.rest(api_endpoint)?;
         Ok(())
     }
 
@@ -62,8 +55,9 @@ mod test {
             })
             .meta([IcingaMetadataType::UsedBy, IcingaMetadataType::Location])
             .build()?;
-        let _: ResultsWrapper<QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>> =
-            icinga2.rest(api_endpoint)?;
+        let _response: ResultsWrapper<
+            QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>,
+        > = icinga2.rest(api_endpoint)?;
         Ok(())
     }
 
@@ -81,8 +75,9 @@ mod test {
                 filter_vars: BTreeMap::from([("filter_severity".to_string(), serde_json::json!("imminent"))]),
             })
             .build()?;
-        let _: ResultsWrapper<QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>> =
-            icinga2.rest(api_endpoint)?;
+        let _response: ResultsWrapper<
+            QueryResultObjectWithJoins<IcingaService, IcingaServiceJoins>,
+        > = icinga2.rest(api_endpoint)?;
         Ok(())
     }
 }
