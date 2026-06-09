@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.0 - 2026-06-09 10:43:31Z
+
+### ⚙️ Miscellaneous Tasks
+
+- *(template)* Update repository to latest rust-templates standards
+- *(template)* Sync release.sh and Cross.toml with lib template
+- *(dependencies)* Update dependencies
+
+## 0.2.23 - 2026-06-09 10:41:57Z
+
+### ⚙️ Miscellaneous Tasks
+
+- *(template)* Update repository to latest rust-templates standards
+- *(template)* Sync release.sh and Cross.toml with lib template
+- *(dependencies)* Update dependencies
+
 ## 0.2.22 - 2026-04-08 11:59:35Z
 
 ### ⚙️ Miscellaneous Tasks
