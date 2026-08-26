@@ -60,7 +60,7 @@ pub(crate) fn add_joins_to_url<JT: IcingaJoinType + Ord + std::fmt::Display>(
             for (j, fields) in partial {
                 for f in fields {
                     url.query_pairs_mut()
-                        .append_pair("joins", &format!("{}.{}", &j.to_string(), &f));
+                        .append_pair("joins", &format!("{j}.{f}"));
                 }
             }
         }
