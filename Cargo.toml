@@ -40,26 +40,26 @@ blocking = ["reqwest/blocking"]
 derive_builder = { version = "0.20.2" }
 derive_more = { version = "2.1.1", features = ["from_str", "display"] }
 enumoid = { version = "0.5.0", optional = true }
-fs-err = { version = "3.3.1", package = "fs-err" }
+fs-err = { version = "3.3.2", package = "fs-err" }
 futures = { version = "0.3.34", optional = true }
-reqwest = { version = "0.13.4", features = ["json"] }
+reqwest = { version = "0.13.5", features = ["json"] }
 serde = { version = "1.0.229", features = ["derive"] }
-serde_json = { version = "1.0.151" }
+serde_json = { version = "1.0.154" }
 serde_path_to_error = { version = "0.1.20" }
 serde_repr = { version = "0.1.21" }
-thiserror = { version = "2.0.20" }
+thiserror = { version = "2.0.21" }
 time = { version = "0.3.55", features = ["macros", "serde", "serde-human-readable"] }
-tokio = { version = "1.53.1", optional = true }
+tokio = { version = "1.54.0", optional = true }
 tokio-stream = { version = "0.1.19", features = ["io-util"], optional = true }
-tokio-util = { version = "0.7.19", features = ["io"], optional = true }
-toml = { version = "1.1.4" }
+tokio-util = { version = "0.7.20", features = ["io"], optional = true }
+toml = { version = "1.1.8" }
 tracing = { version = "0.1.44" }
 url = { version = "2.5.8" }
 
 [dev-dependencies]
 dotenvy = { version = "0.15.7" }
 pretty_assertions = { version = "1.4.1" }
-tokio = { version = "1.53.1", features = ["macros"] }
+tokio = { version = "1.54.0", features = ["macros"] }
 tracing-test = { version = "0.2.6" }
 
 [profile.release]
