@@ -27,16 +27,25 @@ pub struct IcingaConfigObject {
     /// short object name
     pub name: String,
     /// object is active (being checked)
-    pub active: bool,
+    ///
+    /// `None` where Icinga only serializes config and state attributes, e.g. the
+    /// downtime in Downtime* events, since this is neither
+    pub active: Option<bool>,
     /// whether to run a check once or everywhere
-    pub ha_mode: HAMode,
+    ///
+    /// `None` where Icinga only serializes config and state attributes, e.g. the
+    /// downtime in Downtime* events, since this is neither
+    pub ha_mode: Option<HAMode>,
     /// original values of object attributes modified at runtime
     pub original_attributes: Option<BTreeMap<String, serde_json::Value>>,
     /// configuration package name this object belongs to, _etc for local configuration
     /// _api for runtime created objects
     pub package: IcingaPackageName,
     /// object has been paused at runtime
-    pub paused: bool,
+    ///
+    /// `None` where Icinga only serializes config and state attributes, e.g. the
+    /// downtime in Downtime* events, since this is neither
+    pub paused: Option<bool>,
     /// location information whether the configuration files are stored
     pub source_location: IcingaSourceLocation,
     /// templates imported on object compilation
