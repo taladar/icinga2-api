@@ -29,6 +29,13 @@ pub struct IcingaDowntime {
     /// the host for which the downtime will be scheduled
     pub host_name: IcingaHostName,
     /// the service for which the downtime will be scheduled, if not specified this is a host downtime
+    ///
+    /// Icinga sends an empty string for host downtimes, which is decoded as `None`
+    #[serde(
+        default,
+        serialize_with = "crate::serde::serialize_none_as_empty_string_or_to_string",
+        deserialize_with = "crate::serde::deserialize_empty_string_or_parse"
+    )]
     pub service_name: Option<IcingaServiceName>,
     /// the time when the downtime was created (but not necessarily started)
     #[serde(

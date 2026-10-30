@@ -29,6 +29,7 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use crate::types::event_stream::IcingaEvent;
+    use crate::types::names::IcingaServiceName;
 
     /// A DowntimeAdded event as Icinga sends it: the downtime is serialized with
     /// only its config and state attributes, so the config object's `active`,
@@ -46,6 +47,25 @@ mod test {
         assert_eq!(event.downtime.config_object.paused, None);
         assert_eq!(event.downtime.config_object.ha_mode, None);
         assert_eq!(event.downtime.author, "admin");
+        assert_eq!(
+            event.downtime.service_name,
+            Some(IcingaServiceName("service1".to_owned()))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn host_downtime_has_no_service() -> Result<(), Box<dyn Error>> {
+        // Icinga sends the (unset) service name of a host downtime as an empty string.
+        let host_event = EVENT
+            .replace(r#""service_name":"service1""#, r#""service_name":"""#)
+            .replace("host1!service1!", "host1!");
+        let jd = &mut serde_json::Deserializer::from_str(&host_event);
+        let event: IcingaEvent = serde_path_to_error::deserialize(jd)?;
+        let IcingaEvent::DowntimeAdded(event) = event else {
+            return Err(format!("expected a DowntimeAdded event, got {event:?}").into());
+        };
+        assert_eq!(event.downtime.service_name, None);
         Ok(())
     }
 }

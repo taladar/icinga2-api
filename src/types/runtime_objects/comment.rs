@@ -26,6 +26,13 @@ pub struct IcingaComment {
     /// the host this comment is attached to
     pub host_name: IcingaHostName,
     /// the service this comment is attached to, if not specified it is a host comment
+    ///
+    /// Icinga sends an empty string for host comments, which is decoded as `None`
+    #[serde(
+        default,
+        serialize_with = "crate::serde::serialize_none_as_empty_string_or_to_string",
+        deserialize_with = "crate::serde::deserialize_empty_string_or_parse"
+    )]
     pub service_name: Option<IcingaServiceName>,
     /// the time the comment was entered
     #[serde(

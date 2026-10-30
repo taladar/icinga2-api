@@ -56,6 +56,13 @@ pub struct IcingaNotification {
     /// The name of the host this notification belongs to.
     pub host_name: IcingaHostName,
     /// The short name of the service this notification belongs to. If omitted, this notification object is treated as host notification.
+    ///
+    /// Icinga sends an empty string for host notifications, which is decoded as `None`
+    #[serde(
+        default,
+        serialize_with = "crate::serde::serialize_none_as_empty_string_or_to_string",
+        deserialize_with = "crate::serde::deserialize_empty_string_or_parse"
+    )]
     pub service_name: Option<IcingaServiceName>,
     /// the users notified by this notification
     pub notified_problem_users: Option<Vec<IcingaUserName>>,
