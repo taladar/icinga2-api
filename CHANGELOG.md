@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0 - 2026-10-30 12:32:39Z
+
+### 🐛 Bug Fixes
+
+- [**breaking**] Make active, paused and ha_mode of IcingaConfigObject optional
+
+### ⚙️ Miscellaneous Tasks
+
+- *(dependencies)* Update tokio to 1.54.1 for RUSTSEC-2026-0384
+- *(dependencies)* Update dependencies
+
 ## 0.3.2 - 2026-10-21 09:11:44Z
 
 ### ⚙️ Miscellaneous Tasks
