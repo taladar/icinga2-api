@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 - 2026-10-30 12:54:08Z
+
+### 🐛 Bug Fixes
+
+- Decode an empty service_name of downtimes, comments and notifications as None
+
 ## 0.4.0 - 2026-10-30 12:32:39Z
 
 ### 🐛 Bug Fixes
