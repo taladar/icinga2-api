@@ -80,7 +80,7 @@ impl ScheduleDowntimeBuilder {
     ///
     /// this returns an error if the filter field object type is not Host or Service
     pub fn validate(&self) -> Result<(), crate::error::Error> {
-        if matches!(&self.fixed, Some(Some(false))) && self.duration.is_none() {
+        if matches!(&self.fixed, Some(Some(false))) && matches!(&self.duration, None | Some(None)) {
             return Err(crate::error::Error::DurationRequiredOnFlexibleDowntime);
         }
         if let Some(Some(filter)) = &self.filter {
@@ -92,7 +92,9 @@ impl ScheduleDowntimeBuilder {
                     filter.object_type.to_owned(),
                 ));
             }
-            if filter.object_type == IcingaObjectType::Service {
+            if filter.object_type == IcingaObjectType::Service
+                && matches!(&self.all_services, Some(Some(true)))
+            {
                 return Err(crate::error::Error::AllServicesInvalidOnServiceDowntime);
             }
         }
@@ -124,3 +126,70 @@ impl RestApiEndpoint for ScheduleDowntime {
 }
 
 impl RestApiResponse<ScheduleDowntime> for ResultsWrapper<StatusResponse> {}
+
+#[cfg(test)]
+mod test {
+    use super::ScheduleDowntime;
+    use crate::types::enums::object_type::IcingaObjectType;
+    use crate::types::filter::IcingaFilter;
+
+    /// a filter for one object of `object_type`
+    fn filter(object_type: IcingaObjectType) -> IcingaFilter {
+        IcingaFilter {
+            object_type,
+            filter: "match(\"example\", host.name)".to_owned(),
+            filter_vars: std::collections::BTreeMap::new(),
+        }
+    }
+
+    /// a builder with every required field set
+    fn builder(object_type: IcingaObjectType) -> super::ScheduleDowntimeBuilder {
+        let start = time::OffsetDateTime::UNIX_EPOCH;
+        let mut builder = ScheduleDowntime::builder();
+        builder
+            .author("test".to_owned())
+            .comment("test".to_owned())
+            .start_time(start)
+            .end_time(start.saturating_add(time::Duration::hours(1)))
+            .fixed(Some(true))
+            .duration(None)
+            .all_services(None)
+            .trigger_name(None)
+            .child_options(None)
+            .filter(filter(object_type));
+        builder
+    }
+
+    #[test]
+    fn service_downtimes_are_valid() -> Result<(), crate::error::Error> {
+        builder(IcingaObjectType::Service).build()?;
+        Ok(())
+    }
+
+    #[test]
+    fn all_services_is_invalid_on_service_downtimes() -> Result<(), crate::error::Error> {
+        assert!(matches!(
+            builder(IcingaObjectType::Service)
+                .all_services(Some(true))
+                .build(),
+            Err(crate::error::Error::AllServicesInvalidOnServiceDowntime)
+        ));
+        builder(IcingaObjectType::Host)
+            .all_services(Some(true))
+            .build()?;
+        Ok(())
+    }
+
+    #[test]
+    fn flexible_downtimes_need_a_duration() -> Result<(), crate::error::Error> {
+        assert!(matches!(
+            builder(IcingaObjectType::Host).fixed(Some(false)).build(),
+            Err(crate::error::Error::DurationRequiredOnFlexibleDowntime)
+        ));
+        builder(IcingaObjectType::Host)
+            .fixed(Some(false))
+            .duration(Some(time::Duration::minutes(30)))
+            .build()?;
+        Ok(())
+    }
+}
