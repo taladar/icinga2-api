@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3 - 2026-11-19 12:17:08Z
+
+### 🐛 Bug Fixes
+
+- *(schedule-downtime)* Allow service downtimes
+
 ## 0.4.2 - 2026-11-16 15:16:34Z
 
 ### ⚙️ Miscellaneous Tasks
