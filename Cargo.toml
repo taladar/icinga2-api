@@ -52,9 +52,9 @@ time = { version = "0.3.55", features = ["macros", "serde", "serde-human-readabl
 tokio = { version = "1.54.1", optional = true }
 tokio-stream = { version = "0.1.19", features = ["io-util"], optional = true }
 tokio-util = { version = "0.7.20", features = ["io"], optional = true }
-toml = { version = "1.2.1" }
+toml = { version = "1.2.2" }
 tracing = { version = "0.1.44" }
-url = { version = "2.5.8" }
+url = { version = "2.5.9" }
 
 [dev-dependencies]
 dotenvy = { version = "0.15.7" }
