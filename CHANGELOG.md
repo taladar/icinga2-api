@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4 - 2026-11-23 10:49:57Z
+
+### ⚙️ Miscellaneous Tasks
+
+- *(dependencies)* Update dependencies
+
 ## 0.4.3 - 2026-11-19 12:17:08Z
 
 ### 🐛 Bug Fixes
