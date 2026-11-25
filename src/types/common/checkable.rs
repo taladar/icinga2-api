@@ -149,8 +149,8 @@ pub struct IcingaCheckable {
         deserialize_with = "deserialize_icinga_timestamp"
     )]
     pub last_check: time::OffsetDateTime,
-    /// the result of the last check
-    pub last_check_result: IcingaCheckResult,
+    /// the result of the last check, `None` if it has never been checked
+    pub last_check_result: Option<IcingaCheckResult>,
     /// when the last hard state change occurred
     #[serde(
         serialize_with = "serialize_icinga_timestamp",
