@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.2 - 2026-11-25 15:10:12Z
+
+### 🐛 Bug Fixes
+
+- *(actions)* Do not send unset optional fields
+
 ## 0.5.1 - 2026-11-25 14:30:07Z
 
 ### 🐛 Bug Fixes

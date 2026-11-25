@@ -638,7 +638,7 @@ dependencies = [
 
 [[package]]
 name = "icinga2-api"
-version = "0.5.1"
+version = "0.5.2"
 dependencies = [
  "derive_builder",
  "derive_more",
