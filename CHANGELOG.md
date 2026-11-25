@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1 - 2026-11-25 14:30:07Z
+
+### 🐛 Bug Fixes
+
+- *(downtime)* Remove downtimes by Downtime filter, child options names
+
 ## 0.5.0 - 2026-11-25 13:34:59Z
 
 ### 🐛 Bug Fixes
