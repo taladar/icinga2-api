@@ -5,7 +5,7 @@ use std::{path::Path, str::from_utf8};
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{
-    config::Icinga2Instance,
+    config::{Icinga2Auth, Icinga2Instance},
     types::rest::{RestApiEndpoint, RestApiResponse},
 };
 
@@ -16,10 +16,10 @@ pub struct Icinga2 {
     client: reqwest::blocking::Client,
     /// the base URL for the Icinga API
     pub url: url::Url,
-    /// username
+    /// username, empty when authenticating with a client certificate
     pub username: String,
-    /// password
-    password: String,
+    /// how to authenticate
+    auth: Icinga2Auth,
 }
 
 impl Icinga2 {
@@ -30,44 +30,69 @@ impl Icinga2 {
     /// this fails if the CA certificate file mentioned in the configuration
     /// can not be found or parsed
     pub fn from_instance_config(config: &Icinga2Instance) -> Result<Self, crate::error::Error> {
-        let client_builder = reqwest::blocking::ClientBuilder::new();
-        let client_builder = client_builder.user_agent(concat!(
-            env!("CARGO_PKG_NAME"),
-            "/",
-            env!("CARGO_PKG_VERSION")
-        ));
-        let mut headers = reqwest::header::HeaderMap::new();
-        headers.insert(
-            "Content-Type",
-            reqwest::header::HeaderValue::from_static("application/json"),
-        );
-        headers.insert(
-            "Accept",
-            reqwest::header::HeaderValue::from_static("application/json"),
-        );
-        let client_builder = client_builder.default_headers(headers);
-        let client_builder = if let Some(ca_certificate) = &config.ca_certificate {
-            let ca_cert_content = fs_err::read(ca_certificate)
-                .map_err(crate::error::Error::CouldNotReadCACertFile)?;
-            let ca_cert = reqwest::Certificate::from_pem(&ca_cert_content)
-                .map_err(crate::error::Error::CouldNotParsePEMCACertificate)?;
+        Self::from_parts(
+            &config.url,
+            config.ca_certificate.as_deref(),
+            Icinga2Auth::Basic {
+                username: config.username.clone(),
+                password: config.password.clone(),
+            },
+        )
+    }
+
+    /// create a new Icinga2 instance from its URL (without the v1 component),
+    /// an optional CA certificate to validate the server certificate with
+    /// and the authentication to use
+    ///
+    /// see also [crate::config::instance_file::Icinga2InstanceFile] which
+    /// resolves these parts from an instance config file
+    ///
+    /// # Errors
+    /// this fails if the CA certificate file can not be found or parsed,
+    /// the client certificate can not be parsed or the URL can not be parsed
+    pub fn from_parts(
+        url: &str,
+        ca_certificate: Option<&Path>,
+        auth: Icinga2Auth,
+    ) -> Result<Self, crate::error::Error> {
+        let parts = crate::config::client_parts(url, ca_certificate, &auth)?;
+        let client_builder = reqwest::blocking::ClientBuilder::new()
+            .user_agent(concat!(
+                env!("CARGO_PKG_NAME"),
+                "/",
+                env!("CARGO_PKG_VERSION")
+            ))
+            .default_headers(parts.headers);
+        let client_builder = if let Some(ca_cert) = parts.ca_certificate {
             client_builder.tls_certs_only([ca_cert])
+        } else {
+            client_builder
+        };
+        let client_builder = if let Some(identity) = parts.identity {
+            client_builder.identity(identity)
         } else {
             client_builder
         };
         let client = client_builder
             .build()
             .map_err(crate::error::Error::CouldNotBuildReqwestClientFromSuppliedInformation)?;
-        let url =
-            url::Url::parse(&config.url).map_err(crate::error::Error::CouldNotParseUrlInConfig)?;
-        let username = config.username.clone();
-        let password = config.password.clone();
         Ok(Self {
             client,
-            url,
-            username,
-            password,
+            url: parts.url,
+            username: auth.username().to_owned(),
+            auth,
         })
+    }
+
+    /// adds the basic auth header to a request if we use basic auth
+    fn authenticate(
+        &self,
+        req: reqwest::blocking::RequestBuilder,
+    ) -> reqwest::blocking::RequestBuilder {
+        match &self.auth {
+            Icinga2Auth::Basic { username, password } => req.basic_auth(username, Some(password)),
+            Icinga2Auth::ClientCertificate { .. } => req,
+        }
     }
 
     /// create a new Icinga2 instance from a TOML config file
@@ -112,7 +137,7 @@ impl Icinga2 {
                 reqwest::header::HeaderValue::from_static("GET"),
             );
         }
-        req = req.basic_auth(&self.username, Some(&self.password));
+        req = self.authenticate(req);
         if let Some(request_body) = request_body {
             tracing::trace!("Request body:\n{:#?}", request_body);
             req = req.json(&request_body);
