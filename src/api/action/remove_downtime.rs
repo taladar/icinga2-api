@@ -36,18 +36,24 @@ impl RemoveDowntime {
 }
 
 impl RemoveDowntimeBuilder {
-    /// makes sure the filter object type is valid for this call (either Host or Service)
+    /// makes sure the filter object type is valid for this call (Host,
+    /// Service or Downtime, the latter to remove individual downtimes)
     ///
     /// # Errors
     ///
-    /// this returns an error if the filter field object type is not Host or Service
+    /// this returns an error if the filter field object type is not Host, Service or Downtime
     pub fn validate(&self) -> Result<(), crate::error::Error> {
         if let Some(Some(filter)) = &self.filter {
             if filter.object_type != IcingaObjectType::Host
                 && filter.object_type != IcingaObjectType::Service
+                && filter.object_type != IcingaObjectType::Downtime
             {
                 Err(crate::error::Error::FilterObjectTypeMismatch(
-                    vec![IcingaObjectType::Host, IcingaObjectType::Service],
+                    vec![
+                        IcingaObjectType::Host,
+                        IcingaObjectType::Service,
+                        IcingaObjectType::Downtime,
+                    ],
                     filter.object_type.to_owned(),
                 ))
             } else {

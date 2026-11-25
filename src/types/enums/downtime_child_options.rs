@@ -13,5 +13,29 @@ pub enum IcingaDowntimeChildOptions {
     /// schedules child downtimes triggered by this downtime
     DowntimeTriggeredChildren,
     /// schedules non-triggered downtimes
+    #[serde(rename = "DowntimeNonTriggeredChildren")]
     DOwntimeNonTriggeredChildren,
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn test_serialize_as_icinga_names() -> Result<(), Box<dyn std::error::Error>> {
+        assert_eq!(
+            serde_json::to_string(&IcingaDowntimeChildOptions::DOwntimeNonTriggeredChildren)?,
+            "\"DowntimeNonTriggeredChildren\""
+        );
+        assert_eq!(
+            serde_json::from_str::<IcingaDowntimeChildOptions>("\"DowntimeNonTriggeredChildren\"")?,
+            IcingaDowntimeChildOptions::DOwntimeNonTriggeredChildren
+        );
+        assert_eq!(
+            serde_json::to_string(&IcingaDowntimeChildOptions::DowntimeTriggeredChildren)?,
+            "\"DowntimeTriggeredChildren\""
+        );
+        Ok(())
+    }
 }
