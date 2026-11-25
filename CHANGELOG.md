@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.5 - 2026-11-25 12:27:57Z
+
+### 🚀 Features
+
+- *(config)* Shared instance config files and client certificate auth
+
 ## 0.4.4 - 2026-11-23 10:49:57Z
 
 ### ⚙️ Miscellaneous Tasks
