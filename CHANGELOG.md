@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 - 2026-11-25 13:34:59Z
+
+### 🐛 Bug Fixes
+
+- *(checkable)* [**breaking**] Last_check_result is None for never checked
+  objects
+
 ## 0.4.5 - 2026-11-25 12:27:57Z
 
 ### 🚀 Features
