@@ -29,30 +29,36 @@ pub struct ProcessCheckResult {
     pub plugin_output: String,
     /// the performance data
     #[builder(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub performance_data: Option<Vec<IcingaPerformanceData>>,
     /// the check command
     #[builder(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub check_command: Option<IcingaCommandLine>,
     /// usually the name of the command endpoint
     #[builder(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub check_source: Option<String>,
     /// the start time of the check command execution
     #[serde(
         serialize_with = "serialize_optional_icinga_timestamp",
         deserialize_with = "deserialize_optional_icinga_timestamp"
     )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub execution_start: Option<time::OffsetDateTime>,
     /// the end time of the check command execution
     #[serde(
         serialize_with = "serialize_optional_icinga_timestamp",
         deserialize_with = "deserialize_optional_icinga_timestamp"
     )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub execution_end: Option<time::OffsetDateTime>,
     /// Time-to-live duration in seconds for this check result. The next expected check result is now + ttl where freshness checks are executed.
     #[serde(
         serialize_with = "serialize_optional_duration_as_seconds",
         deserialize_with = "deserialize_optional_seconds_as_duration"
     )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ttl: Option<time::Duration>,
     /// filter to target which host and/or service this check result applies to
     #[builder(default, setter(strip_option, into))]

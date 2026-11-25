@@ -40,18 +40,23 @@ pub struct ScheduleDowntime {
     )]
     end_time: time::OffsetDateTime,
     /// Defaults to true. If true, the downtime is fixed otherwise flexible.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     fixed: Option<bool>,
     /// the duration of the downtime
     #[serde(
         serialize_with = "serialize_optional_duration_as_seconds",
         deserialize_with = "deserialize_optional_seconds_as_duration"
     )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     duration: Option<time::Duration>,
     /// Sets downtime for all services for the matched host objects. If child_options are set, all child hosts and their services will schedule a downtime too. Defaults to false.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     all_services: Option<bool>,
     /// Sets the trigger for a triggered downtime.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     trigger_name: Option<IcingaDowntimeName>,
     /// Schedule child downtimes.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     child_options: Option<IcingaDowntimeChildOptions>,
     /// filter to target which host and/or service to schedule a downtime for
     #[builder(default, setter(strip_option, into))]
@@ -132,6 +137,7 @@ mod test {
     use super::ScheduleDowntime;
     use crate::types::enums::object_type::IcingaObjectType;
     use crate::types::filter::IcingaFilter;
+    use pretty_assertions::assert_eq;
 
     /// a filter for one object of `object_type`
     fn filter(object_type: IcingaObjectType) -> IcingaFilter {
@@ -190,6 +196,17 @@ mod test {
             .fixed(Some(false))
             .duration(Some(time::Duration::minutes(30)))
             .build()?;
+        Ok(())
+    }
+
+    #[test]
+    fn unset_options_are_not_sent() -> Result<(), Box<dyn std::error::Error>> {
+        // Icinga rejects e.g. `"child_options": null` with a 400
+        let body = serde_json::to_value(builder(IcingaObjectType::Host).build()?)?;
+        for key in ["duration", "all_services", "trigger_name", "child_options"] {
+            assert!(body.get(key).is_none(), "{key} must not be sent when unset");
+        }
+        assert_eq!(body.get("fixed"), Some(&serde_json::Value::Bool(true)));
         Ok(())
     }
 }

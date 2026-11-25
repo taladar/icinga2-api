@@ -24,8 +24,10 @@ pub struct RescheduleCheck {
         serialize_with = "serialize_optional_icinga_timestamp",
         deserialize_with = "deserialize_optional_icinga_timestamp"
     )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     next_check: Option<time::OffsetDateTime>,
     /// Defaults to false. If enabled, the checks are executed regardless of time period restrictions and checks being disabled per object or on a global basis.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     force: Option<bool>,
     /// filter to target which host and/or service check to reschedule
     #[builder(default, setter(strip_option, into))]

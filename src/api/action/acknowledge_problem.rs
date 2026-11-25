@@ -27,12 +27,16 @@ pub struct AcknowledgeProblem {
         serialize_with = "serialize_optional_icinga_timestamp",
         deserialize_with = "deserialize_optional_icinga_timestamp"
     )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     expiry: Option<time::OffsetDateTime>,
     /// Whether the acknowledgement will be set until the service or host fully recovers. Defaults to false.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     sticky: Option<bool>,
     /// Whether a notification of the Acknowledgement type will be sent. Defaults to false.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     notify: Option<bool>,
     /// Whether the acknowledgement comment persists after the end of the acknowledgement
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     persistent: Option<bool>,
     /// filter to target which host and/or service problem to acknowledge
     #[builder(default, setter(strip_option, into))]

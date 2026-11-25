@@ -24,16 +24,22 @@ pub struct ExecuteCommand {
     )]
     ttl: time::Duration,
     /// the command type (check, event or notification)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     command_type: Option<IcingaCommandType>,
     /// The command to execute. Its type must the same as command_type. It can be a macro string. Default: depending on the command_type it’s either $check_command$, $event_command$ or $notification_command$
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     command: Option<String>,
     /// The endpoint to execute the command on. It can be a macro string. Default: $command_endpoint$.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     endpoint: Option<String>,
     /// Macro overrides. Default: {}
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     macros: Option<BTreeMap<String, serde_json::Value>>,
     /// The user used for the notification command.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     user: Option<IcingaUserName>,
     /// The notification used for the notification command.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     notification: Option<String>,
 }
 

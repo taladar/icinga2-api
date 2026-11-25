@@ -22,6 +22,7 @@ pub struct SendCustomNotification {
     /// the body of the custom notification
     comment: String,
     /// Default: false. If true, the notification is sent regardless of downtimes or whether notifications are enabled or not.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     force: Option<bool>,
     /// filter to target which host and/or service for which to send the custom notification
     #[builder(default, setter(strip_option, into))]

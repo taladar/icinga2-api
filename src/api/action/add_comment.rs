@@ -27,6 +27,7 @@ pub struct AddComment {
         serialize_with = "serialize_optional_icinga_timestamp",
         deserialize_with = "deserialize_optional_icinga_timestamp"
     )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     expiry: Option<time::OffsetDateTime>,
     /// filter to target which host and/or service to attach the comment to
     #[builder(default, setter(strip_option, into))]
